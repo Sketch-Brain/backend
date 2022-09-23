@@ -1,0 +1,87 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.4'
+	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'java'
+}
+
+group = 'com.sketch.brain'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+ext{
+	set('springCloudVersion',"2021.0.4")
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//Spring MVC
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//Hateoas for Rest
+	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+
+	//Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	//Devtools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	//Swagger Supports - Errors.
+//	implementation "io.springfox:springfox-boot-starter:3.0.0"
+//	implementation "io.springfox:springfox-swagger-ui:3.0.0"
+
+	//[Manage]Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	//Junit5
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+	//Jackson - Datetime error dependencies include
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	//Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	//Data Layer - Spring data JDBC
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	//MySQL connector
+	implementation 'mysql:mysql-connector-java:8.0.30'
+
+	//Testing DB
+	developmentOnly 'com.h2database:h2'
+
+	//Kubernetes Supports - fabric8 dependencies
+	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8'
+	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8-config'
+
+}
+
+dependencyManagement{
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	testLogging {
+		showStandardStreams = true
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+		exceptionFormat = 'full'
+	}
+}

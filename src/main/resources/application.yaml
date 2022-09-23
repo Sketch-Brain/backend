@@ -1,0 +1,82 @@
+#Tomcat Ports
+server:
+  port: 9000
+  servlet:
+    session:
+      timeout: 1800
+
+#Dev tool Endpoints
+spring:
+  devtools:
+    restart:
+      exclude: static/**, public/**, resources/**
+  #Common Profiles
+  config:
+    activate:
+      on-profile: base
+  #Swagger configurations
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+#Actuator Settings
+management:
+  endpoint:
+    health:
+      show-details: always
+  trace:
+    http:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,loggers,metrics,mappings,shutdown,threaddump,conditions,info,heapdump
+      base-path: /api/actuator
+      path-mapping:
+        loggers: logs
+        httptrace: trace
+info:
+  spring:
+    framework:
+      version: ${spring-framework.version}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: sketch-prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql-svc:${DB_PORT}/${DB_TABLE_NAME}?serverTimezone=Asia/Seoul
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  cloud:
+    kubernetes:
+      enabled: true
+      config:
+        name: ${CONFIG_NAME}
+        namespace: ${K8S_NAMESPACE}
+---
+spring:
+  config:
+    activate:
+      on-profile: sketch-dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql-svc:${DB_DEV_PORT}/${DB_DEV_TABLE_NAME}?characterEncoding=UTF-8
+    username: ${DB_DEV_USER}
+    password: ${DB_DEV_PASSWORD}
+
+---
+#Local tests.
+server:
+  port: 8888
+
+spring:
+  config:
+    activate:
+      on-profile: sketch-local
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1; #inMemory Database
+    username: test
+    password: test
