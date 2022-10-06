@@ -61,7 +61,7 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.30'
 
 	//Testing DB
-	developmentOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
 
 	//Kubernetes Supports - fabric8 dependencies
 	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8'

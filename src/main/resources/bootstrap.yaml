@@ -8,6 +8,7 @@ spring:
       "local": "base, sketch-local, disable-k8s"
       "dev": "base, sketch-dev, disable-k8s"
       "prod": "base, sketch-prod"
+      "test": "base, sketch-local, disable-k8s"
     active: dev # Default is Dev
 
 ---
