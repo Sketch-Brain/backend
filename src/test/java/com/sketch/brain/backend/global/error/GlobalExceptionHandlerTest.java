@@ -35,10 +35,20 @@ public class GlobalExceptionHandlerTest {
          */
         this.mockMvc.perform(post("/api/trainer/getInfo/2"))
                 .andExpect(status().isMethodNotAllowed())
-                .andExpect(jsonPath("code").value(CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getHttpStatus()))
+//                .andExpect(jsonPath("code").value(CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getHttpStatus()))
                 .andExpect(jsonPath("message").value(CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getMessage()))
                 .andExpect(jsonPath("errors").isEmpty())
                 .andDo(print());
+        //then
+    }
+
+    @Test
+    @DisplayName("만약 Method Type 이 같으면, 성공한다.")
+    public void passIfCorrectMethodCall() throws Exception {
+        //given
+        //when
+        this.mockMvc.perform(get("/api/trainer/getInfo/1"))
+                .andExpect(status().isOk());
         //then
     }
 }
