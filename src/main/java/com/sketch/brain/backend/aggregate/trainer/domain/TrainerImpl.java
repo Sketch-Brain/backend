@@ -1,7 +1,35 @@
 package com.sketch.brain.backend.aggregate.trainer.domain;
 
-//잠깐 주석!
-//public class TrainerImpl extends Trainer{
-public class TrainerImpl{
+import com.sketch.brain.backend.aggregate.trainer.infrastructure.TrainingInfraStructure;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
+import java.util.Enumeration;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class TrainerImpl implements Trainer{
+
+    private final TrainingInfraStructure infraStructure;
+
+    @Override
+    public String convertSource(Enumeration<String> layers, ConcurrentHashMap<String, Object> body) {
+        log.info("Impl convertSource");
+        StringBuilder runnable = new StringBuilder();
+        // Element 가 있을 때 까지, Convert를 진행한다.
+        while(layers.hasMoreElements()){
+            String layerKey = layers.nextElement();
+            runnable.append(this.infraStructure.retConstructedString(layerKey,body));
+        }
+        return runnable.toString();
+    }
+
+    @Override
+    public void writeSource() {
+        log.info("writeSource to Database");
+
+    }
 }

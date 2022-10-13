@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "PythonDocument")
 public class PythonDocumentModel {
     /**
@@ -21,7 +22,7 @@ public class PythonDocumentModel {
      * NoSQL 에 입력.
      */
     @Id
-    private String userId;
+    private String _id;
 
     private String runnable;
 

@@ -101,3 +101,6 @@ spring:
       port: 27017
       database: testdb
       authentication-database: testdb
+  mongodb:
+    embedded:
+      version: 3.4.9

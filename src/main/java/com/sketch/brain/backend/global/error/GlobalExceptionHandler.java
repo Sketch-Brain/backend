@@ -1,6 +1,8 @@
 package com.sketch.brain.backend.global.error;
 
 import com.sketch.brain.backend.global.error.exceptions.CommonErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.TrainingErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -49,5 +51,15 @@ public class GlobalExceptionHandler {
         log.error("Request http methods are not allowed.", e);
         final ErrorResponse errorResponse = new ErrorResponse(CommonErrorCodeImpl.METHOD_NOT_ALLOWED,CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getMessage());
         return new ResponseEntity<>(errorResponse,CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getHttpStatus());
+    }
+
+    /**
+     * 알수 없는 Layer 로 학습을 진행하려 할 경우에 대한 Exception Handling.
+     */
+    @ExceptionHandler(TrainingExceptions.class)
+    protected ResponseEntity<ErrorResponse> handleUnknownLayerTraining(TrainingExceptions e){
+        log.error("Unknown Training Layer detected.", e);
+        final ErrorResponse errorResponse = new ErrorResponse(TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED,TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED.getMessage());
+        return new ResponseEntity<>(errorResponse,TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED.getHttpStatus());
     }
 }
