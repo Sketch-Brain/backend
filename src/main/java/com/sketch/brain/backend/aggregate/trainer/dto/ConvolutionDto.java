@@ -16,12 +16,12 @@ public class ConvolutionDto implements SequentialLayers{
     /**
      * Options 를 나열.
      */
-    @NotNull
     @JsonProperty("filters")
+    @NotNull
     private int filters;
 
-    @NotNull
     @JsonProperty("kernelSize")
+    @NotNull
     private String kernelSize;
 
     @Nullable

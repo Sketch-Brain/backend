@@ -54,12 +54,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 알수 없는 Layer 로 학습을 진행하려 할 경우에 대한 Exception Handling.
+     * Training 을 할 때 생기는 Exception Handling.
      */
     @ExceptionHandler(TrainingExceptions.class)
     protected ResponseEntity<ErrorResponse> handleUnknownLayerTraining(TrainingExceptions e){
         log.error("Unknown Training Layer detected.", e);
-        final ErrorResponse errorResponse = new ErrorResponse(TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED,TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED.getMessage());
-        return new ResponseEntity<>(errorResponse,TrainingErrorCodeImpl.UNKNOWN_LAYER_DETECTED.getHttpStatus());
+        final ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(),e.getErrorCode().getMessage());
+        return new ResponseEntity<>(errorResponse,e.getErrorCode().getHttpStatus());
     }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -22,8 +23,9 @@ public class PythonDocumentModel {
      * NoSQL 에 입력.
      */
     @Id
-    private String _id;
+    private ObjectId experimentId;
 
+    private String userId;
     private String runnable;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)

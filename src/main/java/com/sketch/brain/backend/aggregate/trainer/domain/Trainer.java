@@ -1,5 +1,7 @@
 package com.sketch.brain.backend.aggregate.trainer.domain;
 
+import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
+
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,5 +14,5 @@ public interface Trainer {
     /**
      * 입력받은 Source 를 실제로 DB 에 작성한다.
      */
-    void writeSource();
+    PythonDocumentModel writeSource(String userId, String runnable);
 }
