@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Slf4j
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -57,8 +56,6 @@ public class ConvolutionDto implements SequentialLayers{
 
     @Override
     public List<ArgumentError> mustNeedMetrics() {
-        log.info("Metric check");
-        log.info(this.toRunnableSource());
         //Return Errors.
         List<ArgumentError> errors = new ArrayList<>();
         //Filter 와 kernelSize 값은 null 이거나, 0과 같은 값이 들어와서는 안된다.
@@ -71,7 +68,6 @@ public class ConvolutionDto implements SequentialLayers{
         else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.kernelSize)){
             errors.add(new ArgumentError("Conv2D","kernelSize : "+this.kernelSize,"Param kernelSize value struct is (int,int)."));
         }
-        log.info("errors.size = {}",errors.size());
         return errors;
     }
 
