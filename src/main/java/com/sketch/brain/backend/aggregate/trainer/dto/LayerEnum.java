@@ -17,6 +17,14 @@ public enum LayerEnum {
      * Request body's Key name , Class Name
      */
     CONVOLUTION("Conv2D",ConvolutionDto.class),
+    ACTIVATION("Activation",ActivationDto.class),
+    BATCH_NORMALIZATION("BatchNormalization",BatchNormalizationDto.class),
+    DENSE("Dense",DenseDto.class),
+    DROP_OUT("Dropout",DropoutDto.class),
+    FLATTEN("Flatten",FlattenDto.class),
+    GLOBAL_AVERAGE_POOLING("GlobalAveragePooling2D",GlobalAveragePoolingDto.class),
+    MAX_POOLING("MaxPooling2D",MaxPoolingDto.class),
+    ZERO_PADDING("ZeroPadding2D",ZeroPaddingDto.class),
     UNKNOWN(null,null);
 
     private final String key;
