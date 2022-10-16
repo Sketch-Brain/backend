@@ -2,6 +2,7 @@ package com.sketch.brain.backend.global.error;
 
 import com.sketch.brain.backend.global.error.exceptions.CommonErrorCodeImpl;
 import com.sketch.brain.backend.global.error.exceptions.TrainingErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,18 @@ public class ErrorResponse {
 
     public ErrorResponse(TrainingErrorCodeImpl trainingErrorCode, String message, List<ArgumentError> argumentErrors) {
         this.code = trainingErrorCode.getHttpStatus();
+        this.message = message;
+        this.errors = argumentErrors;
+    }
+
+    public ErrorResponse(ValidationErrorCodeImpl validationErrorCode, String message){
+        this.code = validationErrorCode.getHttpStatus();
+        this.message = message;
+        this.errors = new ArrayList<>();
+    }
+
+    public ErrorResponse(ValidationErrorCodeImpl validationErrorCode, String message, List<ArgumentError> argumentErrors){
+        this.code = validationErrorCode.getHttpStatus();
         this.message = message;
         this.errors = argumentErrors;
     }

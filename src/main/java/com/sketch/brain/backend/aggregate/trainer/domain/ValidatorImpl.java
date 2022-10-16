@@ -1,8 +1,8 @@
 package com.sketch.brain.backend.aggregate.trainer.domain;
 
 import com.sketch.brain.backend.aggregate.trainer.infrastructure.ValidationInfraStructure;
-import com.sketch.brain.backend.global.error.exceptions.TrainingErrorCodeImpl;
-import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
+import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class ValidatorImpl implements Validator{
         while(layers.hasMoreElements()){
             String layerKey = layers.nextElement();
             if(!this.infraStructure.isConvertable(layerKey,body)){
-                throw new TrainingExceptions(TrainingErrorCodeImpl.REQUIRED_LAYER_ATTRIBUTE_IS_EMPTY);
+                throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_LAYER_ATTRIBUTE_IS_EMPTY);
             }
         }
         return true;
