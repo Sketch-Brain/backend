@@ -27,6 +27,7 @@ public class ValidationInfraStructure {
     public boolean isConvertable(String layerKey, ConcurrentHashMap<String, Object> body){
         try {
             LayerEnum layerEnum = LayerEnum.find(layerKey);
+            log.info("key : {}",layerEnum.getKey());
             //WildCard 를 사용해서 Class Convert 진행.
             Class<?> layerClass = layerEnum.getLayersClass();
 

@@ -54,13 +54,18 @@ public class ConvolutionDto implements SequentialLayers{
         return runnable;
     }
 
+    /**
+     * 검증할, 반드시 꼭 필요한 로직들이 이곳에 작성되어야 함.
+     * errors 가 empty 라면 Exception 없음.
+     * @return List<ArgumentError>
+     */
     @Override
     public List<ArgumentError> mustNeedMetrics() {
         //Return Errors.
         List<ArgumentError> errors = new ArrayList<>();
         //Filter 와 kernelSize 값은 null 이거나, 0과 같은 값이 들어와서는 안된다.
         if( this.filters <= 0) {
-            errors.add(new ArgumentError("Conv2D","filters : "+String.valueOf(this.filters),"filter Value is must bigger then 0"));
+            errors.add(new ArgumentError("Conv2D","filters : "+ this.filters,"filter Value is must bigger then 0"));
         }
         if(this.kernelSize == null){
             errors.add(new ArgumentError("Conv2D","kernelSize : null","Param kernelSize required."));
