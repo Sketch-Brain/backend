@@ -7,6 +7,9 @@ import com.mongodb.client.MongoClients;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -18,6 +21,7 @@ import java.util.Objects;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableAutoConfiguration(exclude = {EmbeddedMongoAutoConfiguration.class, MongoAutoConfiguration.class})
 @PropertySource("classpath:application.yaml")
 public class MongodbConfigurations extends AbstractMongoClientConfiguration {
     /**
@@ -56,7 +60,7 @@ public class MongodbConfigurations extends AbstractMongoClientConfiguration {
                 Objects.equals(environment.getProperty("spring.config.activate.on-profile"), "sketch-prod")){
             userInfo = environment.getProperty("spring.data.mongodb.username")
                     .concat(":").concat(Objects.requireNonNull(environment.getProperty("spring.data.mongodb.password"))).concat("@");
-            conParam = "?authSource=testdb&authMechanism=SCRAM-SHA-1";
+            conParam = "?authSource="+getDatabaseName()+"&authMechanism=SCRAM-SHA-1";
         }
         String mongoUrl = String.format(
                 "mongodb://%s%s:%s/%s%s",
@@ -66,7 +70,6 @@ public class MongodbConfigurations extends AbstractMongoClientConfiguration {
                 environment.getProperty("spring.data.mongodb.database"),
                 conParam
         );
-        log.info("Mongo Create URL : {}",mongoUrl);
         return mongoUrl;
     }
 }

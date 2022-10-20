@@ -38,7 +38,6 @@ info:
   spring:
     framework:
       version: ${spring-framework.version}
-
 ---
 spring:
   config:
@@ -49,6 +48,9 @@ spring:
     url: jdbc:mysql://mysql-svc:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
   data:
     mongodb:
       host: ${DB_URI}
@@ -70,7 +72,7 @@ spring:
       on-profile: sketch-dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql-svc:${DB_DEV_PORT}/${DB_DEV_NAME}?characterEncoding=UTF-8
+    url: jdbc:mysql://mysql-svc:${DB_DEV_PORT}/${DB_DEV_NAME}?serverTimezone=Asia/Seoul
     username: ${DB_DEV_USER}
     password: ${DB_DEV_PASSWORD}
   data:
@@ -81,6 +83,17 @@ spring:
       username: ${DB_USER}
       password: ${DB_PASSWORD}
       authentication-database: ${DB_DEV_NAME}
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: mysql
+  sql:
+    init:
+      mode: never
 ---
 #Local tests.
 server:
@@ -95,6 +108,21 @@ spring:
     url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1; #inMemory Database
     username: admin
     password: test
+#    hikari:
+#      jdbc-url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1; #inMemory Database
+#      driver-class-name: org.h2.Driver
+#      username: admin
+#      password: test
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: h2
+  sql:
+    init:
+      mode: embedded
   data:
     mongodb:
       host: 127.0.0.1

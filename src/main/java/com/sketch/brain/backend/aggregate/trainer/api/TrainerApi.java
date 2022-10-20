@@ -48,6 +48,7 @@ public class TrainerApi {//Aggregate Root - Trainer
         //[FIXME] 이곳에서 User 의 정합성 검사.
         //Layer로 쓰기 전, userId 와 같이 필요하지 않은 정보를 제거한다.
         String userId =(String) body.remove("userId");
+        log.info("userId : {}",userId);
         //Post 에서 Mapping 된 Value 가 없으면 에러 발생.
         List<ArgumentError> errors = new ArrayList<>();
         if(userId == null) {
@@ -57,6 +58,8 @@ public class TrainerApi {//Aggregate Root - Trainer
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
+        //Validation Call
+        this.validationService.isValidLayers(body);
 
         PythonDocumentModel model = this.trainerService.saveRunnableSource(userId, body);
         Link selfLink = linkTo(methodOn(TrainerApi.class).saveRunnable(body)).withSelfRel();
