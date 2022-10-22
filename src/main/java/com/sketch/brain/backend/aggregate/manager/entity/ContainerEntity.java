@@ -1,4 +1,4 @@
-package com.sketch.brain.backend.aggregate.trainer.model;
+package com.sketch.brain.backend.aggregate.manager.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -8,31 +8,28 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "PythonDocument")
-public class PythonDocumentModel {
+@Entity
+public class ContainerEntity {
     /**
-     * Convert 한 Python Source 가 입력되어질 Document.
-     * NoSQL 에 입력.
+     * Container 관련 정보를 저장할 Entity.
+     * RDBMS에 저장.
      */
     @Id
+    private int id;
     private ObjectId experimentId;
-
-    private String userId;
-    private String runnable;
-
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime startedAt;
+    private String user_id;
+    private String data_name;
+    private String model_name;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime finishedAt;
+    private LocalDateTime created_at;
 }

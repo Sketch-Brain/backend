@@ -1,6 +1,9 @@
 package com.sketch.brain.backend.global.error;
 
 import com.sketch.brain.backend.global.error.exceptions.CommonErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.TrainingErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
+import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -49,5 +52,25 @@ public class GlobalExceptionHandler {
         log.error("Request http methods are not allowed.", e);
         final ErrorResponse errorResponse = new ErrorResponse(CommonErrorCodeImpl.METHOD_NOT_ALLOWED,CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getMessage());
         return new ResponseEntity<>(errorResponse,CommonErrorCodeImpl.METHOD_NOT_ALLOWED.getHttpStatus());
+    }
+
+    /**
+     * Training 을 할 때 생기는 Exception Handling.
+     */
+    @ExceptionHandler(TrainingExceptions.class)
+    protected ResponseEntity<ErrorResponse> handleUnknownLayerTraining(TrainingExceptions e){
+        log.error("Unknown Training Layer detected.", e);
+        final ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(),e.getErrorCode().getMessage());
+        return new ResponseEntity<>(errorResponse,e.getErrorCode().getHttpStatus());
+    }
+
+    /**
+     * Validation Error Handler
+     */
+    @ExceptionHandler(ValidationExceptions.class)
+    protected ResponseEntity<ErrorResponse> handleValidationExceptions(ValidationExceptions e){
+        log.error("Validation Error acc.");
+        final ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(),e.getErrorCode().getMessage(),e.getArgumentError());
+        return new ResponseEntity<>(errorResponse, e.getErrorCode().getHttpStatus());
     }
 }
