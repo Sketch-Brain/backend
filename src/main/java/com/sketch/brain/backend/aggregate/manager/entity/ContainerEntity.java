@@ -10,26 +10,30 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "container")
 public class ContainerEntity {
     /**
      * Container 관련 정보를 저장할 Entity.
      * RDBMS에 저장.
      */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private ObjectId experimentId;
+    private byte[] experiment_id;
     private String user_id;
     private String data_name;
     private String model_name;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created_at;
 }

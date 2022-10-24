@@ -1,5 +1,6 @@
 package com.sketch.brain.backend.aggregate.trainer.domain;
 
+import com.sketch.brain.backend.aggregate.trainer.dto.Runnable;
 import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
 
 import java.util.Enumeration;
@@ -14,5 +15,5 @@ public interface Trainer {
     /**
      * 입력받은 Source 를 실제로 DB 에 작성한다.
      */
-    PythonDocumentModel writeSource(String userId, String runnable);
+    Runnable writeSource(String userId, String runnable);
 }
