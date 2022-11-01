@@ -1,6 +1,7 @@
 package com.sketch.brain.backend.aggregate.manager.api;
 
 import com.sketch.brain.backend.aggregate.manager.application.ContainerService;
+import com.sketch.brain.backend.aggregate.manager.dto.TokenDto;
 import com.sketch.brain.backend.global.error.ArgumentError;
 import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
 import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
@@ -9,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +56,17 @@ public class ContainerApi {
             errors.add(new ArgumentError("userId","Validation Failed.","Value runnable & experiment Id required but accept null"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_PARAM_NOT_FOUND,errors);
         }
-        this.containerService.writeSource(experimentId,userId,dataName,modelName);
+        TokenDto tokens = this.containerService.writeSource(experimentId,userId,dataName,modelName);
+        this.containerService.runContainer(tokens);
+        return null;
+    }
 
+    @GetMapping(value = "/get/podList/{namespace}", produces = MediaTypes.HAL_JSON_VALUE)
+    public EntityModel<?> getKubernetesPodList(
+            @PathVariable String namespace
+    ){
+        log.info("Kubernetes Namespace get : {}",namespace);
+        this.containerService.getPodLists(namespace);
         return null;
     }
 

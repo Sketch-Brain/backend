@@ -7,12 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -27,6 +24,8 @@ public class ContainerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(columnDefinition = "BINARY(12)")
     private byte[] experiment_id;
     private String user_id;
     private String data_name;
@@ -36,4 +35,9 @@ public class ContainerEntity {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created_at;
+
+    @NotNull
+    private String X_TOKEN;
+    @NotNull
+    private String TOKEN;
 }

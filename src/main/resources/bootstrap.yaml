@@ -5,9 +5,9 @@
 spring:
   profiles:
     group:
-      "local": "base, sketch-local, disable-k8s"
-      "dev": "base, sketch-dev, disable-k8s"
-      "prod": "base, sketch-prod"
+      "local": "base, sketch-local, disable-k8s, k8s-info"
+      "dev": "base, sketch-dev, disable-k8s, k8s-info"
+      "prod": "base, sketch-prod, enable-k8s, k8s-info"
       "test": "base, sketch-local, disable-k8s"
     active: dev # Default is Dev
 
@@ -21,3 +21,29 @@ spring:
   config:
     activate:
       on-profile: disable-k8s
+
+---
+spring:
+  cloud:
+    kubernetes:
+      enabled: true
+      config:
+        name: succeedingufather
+        namespace: training
+  #        name: ${CONFIG_NAME}
+  #        namespace: ${K8S_NAMESPACE}
+  config:
+    activate:
+      on-profile: enable-k8s
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s-info
+
+sketch:
+  brain:
+    worker:
+      IMAGE_NAME: ${IMAGE_NAME}
+      IMAGE_TAG: ${IMAGE_TAGS}
+      NAME_SPACE: ${NAME_SPACE}
