@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,7 +54,11 @@ public class ValidatorApi {
         if(this.service.isValidLayers(keys,values)){
             result.put("valid","success");
         }else result.put("valid","failed");
+        Links allLinks;
         Link selfLink = linkTo(methodOn(ValidatorApi.class).isValidLayers(body)).withSelfRel();
-        return EntityModel.of(result, selfLink);
+        Link saveLink = linkTo(methodOn(TrainerApi.class).saveRunnable(body)).withRel("save");
+
+        allLinks = Links.of(selfLink, saveLink);
+        return EntityModel.of(result, allLinks);
     }
 }
