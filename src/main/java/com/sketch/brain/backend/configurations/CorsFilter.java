@@ -1,29 +1,17 @@
 package com.sketch.brain.backend.configurations;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsWebFilter;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Component
-public class CorsFilter {
-    @Bean
-    CorsWebFilter corsWebFilter(){
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.addAllowedOrigin("*");
-        corsConfig.setMaxAge(8000L);
-        corsConfig.addAllowedMethod(HttpMethod.GET);
-        corsConfig.addAllowedMethod(HttpMethod.POST);
-        corsConfig.addAllowedMethod(HttpMethod.OPTIONS);
-        corsConfig.addAllowedMethod(HttpMethod.DELETE);
-        corsConfig.addAllowedMethod(HttpMethod.PUT);
-        corsConfig.addAllowedHeader("Content-Type");
+@Configuration
+public class CorsFilter implements WebMvcConfigurer {
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-        return new CorsWebFilter(source);
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                .maxAge(3000);
     }
 }
