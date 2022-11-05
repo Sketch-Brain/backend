@@ -3,9 +3,9 @@ package com.sketch.brain.backend.aggregate.trainer.api;
 
 import com.sketch.brain.backend.aggregate.trainer.application.TrainerService;
 import com.sketch.brain.backend.aggregate.trainer.application.ValidationService;
+import com.sketch.brain.backend.aggregate.trainer.dto.Runnable;
 import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
 import com.sketch.brain.backend.global.error.ArgumentError;
-import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
 import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
 import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -41,7 +39,7 @@ public class TrainerApi {//Aggregate Root - Trainer
      * 해당 내용을 Database 에 저장한다.
      */
     @PostMapping(value = "/save/runnable", produces = MediaTypes.HAL_JSON_VALUE)
-    public EntityModel<PythonDocumentModel> saveRunnable(
+    public EntityModel<Runnable> saveRunnable(
             @RequestBody ConcurrentHashMap<String, Object> body//HashMap 은 Concurrent Issue 가 있음.
     ){
         log.info("save New Runnable");
@@ -61,9 +59,9 @@ public class TrainerApi {//Aggregate Root - Trainer
         //Validation Call
         this.validationService.isValidLayers(body);
 
-        PythonDocumentModel model = this.trainerService.saveRunnableSource(userId, body);
+        Runnable runnableSource = this.trainerService.saveRunnableSource(userId, body);
         Link selfLink = linkTo(methodOn(TrainerApi.class).saveRunnable(body)).withSelfRel();
-        return EntityModel.of(model, selfLink);
+        return EntityModel.of(runnableSource, selfLink);
     }
 
 

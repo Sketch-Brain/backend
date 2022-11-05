@@ -2,6 +2,7 @@ package com.sketch.brain.backend.aggregate.trainer.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sketch.brain.backend.aggregate.trainer.application.TrainerService;
+import com.sketch.brain.backend.aggregate.trainer.dto.Runnable;
 import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
 import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
 import org.bson.types.ObjectId;
@@ -46,6 +47,7 @@ public class TrainerApiTest {
     PythonDocumentModel documentModel;
     PythonDocumentModel documentModel2;
     PythonDocumentModel documentModel3;
+    Runnable runnable;
     LocalDateTime time;
 
     @BeforeEach
@@ -58,6 +60,7 @@ public class TrainerApiTest {
                 this.time, this.time);
         this.documentModel3 = new PythonDocumentModel(ObjectId.get(),"testuser2","print(\"hello world2!\")",
                 this.time, this.time);
+        this.runnable = new Runnable(this.documentModel.getExperimentId().toString(),this.documentModel.getRunnable());
     }
 
     @Test
@@ -73,7 +76,7 @@ public class TrainerApiTest {
         body.put("userId",userId);
         //when
         //Service Logic 은 여기서 검증하지 않는다.
-        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.documentModel);
+        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.runnable);
 
         //then
         this.mockMvc.perform(post("/api/trainer/save/runnable").accept(MediaTypes.HAL_JSON_VALUE)
@@ -81,7 +84,6 @@ public class TrainerApiTest {
                     .content(this.objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links").isNotEmpty())
-                .andExpect(jsonPath("userId").value(this.documentModel.getUserId()))
                 .andExpect(jsonPath("runnable").value(this.documentModel.getRunnable()));
     }
 
@@ -95,7 +97,7 @@ public class TrainerApiTest {
         body2.put("filters",16);
         body.put("Conv2D",body2);
         //when
-        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.documentModel);
+        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.runnable);
         //then
         //UserID 가 없으면 Not Found.
         this.mockMvc.perform(post("/api/trainer/save/runnable")

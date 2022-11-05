@@ -74,6 +74,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8'
 	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8-config'
 
+	//Mocking Kubernetes server.
+	implementation 'io.fabric8:kubernetes-server-mock'
 }
 
 dependencyManagement{

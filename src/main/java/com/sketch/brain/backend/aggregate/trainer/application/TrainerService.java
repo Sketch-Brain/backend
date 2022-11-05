@@ -1,6 +1,7 @@
 package com.sketch.brain.backend.aggregate.trainer.application;
 
 import com.sketch.brain.backend.aggregate.trainer.domain.TrainerImpl;
+import com.sketch.brain.backend.aggregate.trainer.dto.Runnable;
 import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ public class TrainerService {
 
     private final TrainerImpl trainer;
 
-    public PythonDocumentModel saveRunnableSource(String userId, ConcurrentHashMap<String, Object> body){
+    public Runnable saveRunnableSource(String userId, ConcurrentHashMap<String, Object> body){
         /**
          * Here is some examples of Json objects.
          * {

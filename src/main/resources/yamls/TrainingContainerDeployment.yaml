@@ -1,0 +1,34 @@
+#ONLY FOR EXAMPLES.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: training-container-deploy
+  namespace: ${NAME_SPACE}
+  labels:
+    app: training-container
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: training-worker
+  template:
+    metadata:
+      labels:
+        app: training-worker
+    spec:
+      imagePullSecrets:
+      - name: docker-pull-secret
+      containers:
+      - name: training-worker
+        image: ${image_names}:${tags}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: workerPort
+          containerPort: 1234
+        env:
+          - name: SQL_DATABASE_URLS
+            value: WORKER_DATABASE_URLS
+          - name: X_TOKEN
+            value: WORKER_X_TOKEN_VALUE
+          - name: TOKEN
+            value: WORKER_TOKEN_VALUE

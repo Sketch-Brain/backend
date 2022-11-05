@@ -1,5 +1,6 @@
 package com.sketch.brain.backend.aggregate.trainer.domain;
 
+import com.sketch.brain.backend.aggregate.trainer.dto.Runnable;
 import com.sketch.brain.backend.aggregate.trainer.infrastructure.TrainingInfraStructure;
 import com.sketch.brain.backend.aggregate.trainer.model.PythonDocumentModel;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,9 @@ public class TrainerImpl implements Trainer{
     }
 
     @Override
-    public PythonDocumentModel writeSource(String userId, String runnable) {
+    public Runnable writeSource(String userId, String runnable) {
         log.info("writeSource to Database");
-        return this.infraStructure.savePythonDocumentModel(userId, runnable);
+        PythonDocumentModel model = this.infraStructure.savePythonDocumentModel(userId, runnable);
+        return new Runnable(model.getExperimentId().toString(),model.getRunnable());
     }
 }

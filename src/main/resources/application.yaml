@@ -48,9 +48,6 @@ spring:
     url: jdbc:mysql://mysql-svc:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
   data:
     mongodb:
       host: ${DB_URI}
@@ -59,12 +56,15 @@ spring:
       username: ${DB_USER}
       password: ${DB_PASSWORD}
       authentication-database: ${DB_NAME}
-  cloud:
-    kubernetes:
-      enabled: true
-      config:
-        name: ${CONFIG_NAME}
-        namespace: ${K8S_NAMESPACE}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  h2:
+    console:
+      enabled: false
+  sql:
+    init:
+      mode: never
 ---
 spring:
   config:

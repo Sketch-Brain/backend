@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sketchbrain-trainer-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sketchbrain-trainer
+  template:
+    metadata:
+      labels:
+        app: sketchbrain-trainer
+    spec:
+      imagePullSecrets:
+        - name: docker-pull-secret
+      containers:
+        - name: sketchbrain-trainer
+          image: #VERSION_STRING#
+          ports:
+            - name: backend-port
+              containerPort: 9000
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tz-seoul
+              mountPath: /etc/localtime
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "1024Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+      volumes:
+        - name: tz-seoul
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Seoul
