@@ -15,8 +15,9 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Queue;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ValidationInfraStructure {
     private final ObjectMapper objectMapper;
 
-    public boolean isConvertable(String layerKey, ConcurrentHashMap<String, Object> body){
+    public boolean isConvertable(String layerKey, Queue<LinkedHashMap<String, Object>> queue){
         try {
             LayerEnum layerEnum = LayerEnum.find(layerKey);
             log.info("key : {}",layerEnum.getKey());
@@ -37,8 +38,8 @@ public class ValidationInfraStructure {
             this.objectMapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES,true);
             this.objectMapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,true);
             this.objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,true);
-
-            String values = this.objectMapper.writeValueAsString(body.get(layerKey));
+            //Queue 의 Head 가 반드시 Value 가 된다.
+            String values = this.objectMapper.writeValueAsString(queue.remove());
             //여기에서 Exception 이 발생하지 않으면, 넘어가면 된다.
             Object obj = this.objectMapper.readValue(values, layerClass);
             Method checkIsValid = layerClass.getDeclaredMethod("mustNeedMetrics");

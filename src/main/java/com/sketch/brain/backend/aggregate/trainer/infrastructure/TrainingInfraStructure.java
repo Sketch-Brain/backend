@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -27,14 +30,16 @@ public class TrainingInfraStructure {
     /**
      * body 의 정보들을 Python Runnable Source 로 Convert 변경한다.
      * @param layerKey : Key value(String)
-     * @param body : RequestBody
+     * @param queue : Object Queue
      * @return
      */
-    public String retConstructedString(String layerKey, ConcurrentHashMap<String, Object> body){
+    public String retConstructedString(String layerKey, Queue<LinkedHashMap<String, Object>> queue){
         LayerEnum layerEnum = LayerEnum.find(layerKey);
+        log.info("retConstructedString");
         try{
             //Body Data 를 String 으로 convert 한 것.
-            String values = this.objectMapper.writeValueAsString(body.get(layerKey));
+            String values = this.objectMapper.writeValueAsString(queue.remove());
+            log.info("values : {}",values);
             //WildCard 를 사용해서 Class Convert 진행.
             Class<?> layerClass = layerEnum.getLayersClass();
             //Jackson Object Mapper 이용해서, Object 로 convert.

@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -23,11 +25,11 @@ public class ValidatorImpl implements Validator{
     }
 
     @Override
-    public boolean checkValidLayer(Enumeration<String> layers, ConcurrentHashMap<String, Object> body) {
+    public boolean checkValidLayer(Enumeration<String> layers, Queue<LinkedHashMap<String, Object>> queue) {
         //NotNull 인 field 의 값들이 제대로 잘 들어왔는지 여부를 먼저 검사한다.
         while(layers.hasMoreElements()){
             String layerKey = layers.nextElement();
-            if(!this.infraStructure.isConvertable(layerKey,body)){
+            if(!this.infraStructure.isConvertable(layerKey,queue)){
                 throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_LAYER_ATTRIBUTE_IS_EMPTY);
             }
         }

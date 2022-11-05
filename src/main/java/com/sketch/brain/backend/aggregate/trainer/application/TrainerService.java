@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -17,21 +19,27 @@ public class TrainerService {
 
     private final TrainerImpl trainer;
 
-    public Runnable saveRunnableSource(String userId, ConcurrentHashMap<String, Object> body){
+    public Runnable saveRunnableSource(String userId, Enumeration<String> keys, Queue<LinkedHashMap<String, Object>> values){
         /**
          * Here is some examples of Json objects.
          * {
-         *     "Conv2D":{
-         *         "filters":16,
-         *         "kernelSize":"(3,3)"
-         *     }
+         *     "userId":"hellouser",
+         *     "layers":[
+         *         {
+         *             "name":"Conv2D",
+         *             "filters":3,
+         *             "kernelSize":"(3,3)"
+         *         },
+         *         {
+         *             "name":"Conv2D",
+         *             "filters":4,
+         *             "kernelSize":"(4,4)"
+         *         }
+         *     ]
          * }
          */
-        //Key( Layer 의 종류가 된다. )
-        Enumeration<String> keys = body.keys();
-
         //Convert 를 먼저 진행하고,
-        String runnable = this.trainer.convertSource(keys, body);
+        String runnable = this.trainer.convertSource(keys, values);
         log.info("Runnable Outputs : {}",runnable);
         //실제로 DB 에 쓴다.
         return this.trainer.writeSource(userId, runnable);

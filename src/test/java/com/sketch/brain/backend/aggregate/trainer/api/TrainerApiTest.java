@@ -21,8 +21,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -76,7 +78,7 @@ public class TrainerApiTest {
         body.put("userId",userId);
         //when
         //Service Logic 은 여기서 검증하지 않는다.
-        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.runnable);
+        when(this.trainerService.saveRunnableSource(anyString(),any(Enumeration.class),any(Queue.class))).thenReturn(this.runnable);
 
         //then
         this.mockMvc.perform(post("/api/trainer/save/runnable").accept(MediaTypes.HAL_JSON_VALUE)
@@ -97,7 +99,7 @@ public class TrainerApiTest {
         body2.put("filters",16);
         body.put("Conv2D",body2);
         //when
-        when(this.trainerService.saveRunnableSource(anyString(),any(ConcurrentHashMap.class))).thenReturn(this.runnable);
+        when(this.trainerService.saveRunnableSource(anyString(),any(Enumeration.class),any(Queue.class))).thenReturn(this.runnable);
         //then
         //UserID 가 없으면 Not Found.
         this.mockMvc.perform(post("/api/trainer/save/runnable")

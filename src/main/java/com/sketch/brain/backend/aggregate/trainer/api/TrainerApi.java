@@ -16,8 +16,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -56,10 +55,20 @@ public class TrainerApi {//Aggregate Root - Trainer
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
-        //Validation Call
-        this.validationService.isValidLayers(body);
 
-        Runnable runnableSource = this.trainerService.saveRunnableSource(userId, body);
+        ArrayList<String> keyValues = new ArrayList<>();
+        Queue<LinkedHashMap<String,Object>> values = new LinkedList<>();
+        //Key 값과 body value 를 추출하기 위해서 변경.
+        ArrayList<LinkedHashMap<String,Object>> layers = (ArrayList<LinkedHashMap<String,Object>>) body.remove("layers");
+        layers.forEach(layer->{// Key 값들 추출하면서, Object 에서 Name 제거.
+            keyValues.add((String) layer.remove("name"));
+            values.add(layer);
+        });
+        Enumeration<String> keys = Collections.enumeration(keyValues);
+        //Validation 은 분리하였음. 연속으로 호출하게끔 변경. 따라서 제거.
+//        this.validationService.isValidLayers(keys, values);
+
+        Runnable runnableSource = this.trainerService.saveRunnableSource(userId, keys, values);
         Link selfLink = linkTo(methodOn(TrainerApi.class).saveRunnable(body)).withSelfRel();
         return EntityModel.of(runnableSource, selfLink);
     }

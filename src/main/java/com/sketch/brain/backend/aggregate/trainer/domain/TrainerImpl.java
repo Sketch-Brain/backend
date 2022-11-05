@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -18,13 +20,13 @@ public class TrainerImpl implements Trainer{
     private final TrainingInfraStructure infraStructure;
 
     @Override
-    public String convertSource(Enumeration<String> layers, ConcurrentHashMap<String, Object> body) {
+    public String convertSource(Enumeration<String> layers, Queue<LinkedHashMap<String, Object>> values) {
         log.info("Impl convertSource");
         StringBuilder runnable = new StringBuilder();
         // Element 가 있을 때 까지, Convert를 진행한다.
         while(layers.hasMoreElements()){
             String layerKey = layers.nextElement();
-            runnable.append(this.infraStructure.retConstructedString(layerKey,body));
+            runnable.append(this.infraStructure.retConstructedString(layerKey,values));
         }
         return runnable.toString();
     }
