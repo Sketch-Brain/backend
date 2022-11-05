@@ -24,20 +24,40 @@ public class ConvolutionDto implements SequentialLayers{
     /**
      * Options 를 나열.
      */
-    @JsonProperty("filters")
+    @JsonProperty("filter")
     @NotNull
     private int filters;
 
-    @JsonProperty("kernelSize")
+    @JsonProperty("kernel_size")//Tuple
     @NotNull
     private String kernelSize;
 
+    @JsonProperty("padding")
+    @NotNull
+    private String padding;
+
+    @JsonProperty("use_bias")
+    @NotNull
+    private Boolean use_bias;
+
+    @JsonProperty("kernel_initializer")
+    @NotNull
+    private String kernel_initializer;
+
+    @JsonProperty("bias_initializer")
+    @NotNull
+    private String bias_initializer;
+
+    @JsonProperty("strides")//Tuple
+    @NotNull
+    private String strides;
+
+    @JsonProperty("data_format")
     @Nullable
-    @JsonProperty("strides")
-    private int strides;
+    private String data_format;
 
     @Nullable
-    @JsonProperty("inputShape")
+    @JsonProperty("input_shape")
     private String inputShape;
 
     /**
@@ -48,8 +68,13 @@ public class ConvolutionDto implements SequentialLayers{
     public String toRunnableSource() {
         String runnable = "layers.Conv2D("+
             "filters="+this.filters+",";
-        if(this.strides > 0) runnable += "strides="+this.strides+",";
+        if(this.strides != null) runnable += "strides="+this.strides+",";
         if(this.inputShape != null) runnable += "input_shape="+this.inputShape+",";
+        if(this.padding != null) runnable += "padding="+this.padding+",";
+        if(this.use_bias != null) runnable += "use_bias="+this.use_bias+",";
+        if(this.kernel_initializer != null) runnable += "kernel_initializer="+this.kernel_initializer+",";
+        if(this.bias_initializer != null) runnable += "bias_initializer="+this.bias_initializer+",";
+        if(this.data_format != null) runnable += "data_format="+this.data_format+",";
         runnable += "kernel_size="+this.kernelSize+"),\n";
         return runnable;
     }
@@ -72,6 +97,12 @@ public class ConvolutionDto implements SequentialLayers{
         }//또한, kernelSize 변수 값은 (int,int) 형태여야 한다.
         else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.kernelSize)){
             errors.add(new ArgumentError("Conv2D","kernelSize : "+this.kernelSize,"Param kernelSize value struct is (int,int)."));
+        }
+        if(this.strides == null){
+            errors.add(new ArgumentError("Conv2D","strides : null","Param strides required."));
+        }//또한, kernelSize 변수 값은 (int,int) 형태여야 한다.
+        else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.strides)){
+            errors.add(new ArgumentError("Conv2D","strides : "+this.strides,"Param strides value struct is (int,int)."));
         }
         return errors;
     }
