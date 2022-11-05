@@ -12,6 +12,7 @@ public class CorsFilter implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                .exposedHeaders("*")
                 .maxAge(3000);
     }
 }
