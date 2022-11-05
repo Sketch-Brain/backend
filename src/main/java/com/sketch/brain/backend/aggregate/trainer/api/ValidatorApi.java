@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -36,11 +36,21 @@ public class ValidatorApi {
         log.info("check isValidParameters");
 
         //Layer로 쓰기 전, userId 와 같이 필요하지 않은 정보를 제거한다.
+        log.info("body : {}",body);
         String userId =(String) body.remove("userId");
 
+        ArrayList<String> keyValues = new ArrayList<>();
+        Queue<LinkedHashMap<String,Object>> values = new LinkedList<>();
+        //Key 값과 body value 를 추출하기 위해서 변경.
+        ArrayList<LinkedHashMap<String,Object>> layers = (ArrayList<LinkedHashMap<String,Object>>) body.remove("layers");
+        layers.forEach(layer->{// Key 값들 추출하면서, Object 에서 Name 제거.
+            keyValues.add((String) layer.remove("name"));
+            values.add(layer);
+        });
+        Enumeration<String> keys = Collections.enumeration(keyValues);
         //True 라면 Validation Success.
         Map<String, String> result = new ConcurrentHashMap<>();
-        if(this.service.isValidLayers(body)){
+        if(this.service.isValidLayers(keys,values)){
             result.put("valid","success");
         }else result.put("valid","failed");
         Link selfLink = linkTo(methodOn(ValidatorApi.class).isValidLayers(body)).withSelfRel();
