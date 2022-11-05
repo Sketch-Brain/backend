@@ -100,7 +100,7 @@ public class ConvolutionDto implements SequentialLayers{
         }
         if(this.strides == null){
             errors.add(new ArgumentError("Conv2D","strides : null","Param strides required."));
-        }//또한, kernelSize 변수 값은 (int,int) 형태여야 한다.
+        }//또한, strides 변수 값은 (int,int) 형태여야 한다.
         else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.strides)){
             errors.add(new ArgumentError("Conv2D","strides : "+this.strides,"Param strides value struct is (int,int)."));
         }
