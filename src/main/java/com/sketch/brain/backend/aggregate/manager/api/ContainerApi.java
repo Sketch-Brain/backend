@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/container")
+@RequestMapping("/api/trainer/container")
 @RequiredArgsConstructor
 public class ContainerApi {
 
