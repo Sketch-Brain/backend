@@ -3,6 +3,7 @@ package com.sketch.brain.backend.aggregate.manager.domain;
 import com.sketch.brain.backend.aggregate.manager.dto.TokenDto;
 import com.sketch.brain.backend.aggregate.manager.entity.ContainerEntity;
 import com.sketch.brain.backend.aggregate.manager.infrastructure.ContainerInfraStructure;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,11 @@ public class ContainerImpl implements Container{
     private final Environment environment;
 
     @Override
-    public void run(Deployment deployment) {
+    public void run(Deployment deployment, Service service) {
         String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
 
         this.infraStructure.runDeployment(deployment,namespace);
+        this.infraStructure.runService(service, namespace);
     }
 
     @Override
@@ -38,13 +40,14 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public Deployment constructK8sContainer(TokenDto token) {
-        // 값들을 파싱해서 전달.
-        String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
-        String tag = environment.getProperty("sketch.brain.worker.IMAGE_TAG");
-        String imageName = environment.getProperty("sketch.brain.worker.IMAGE_NAME");
-
-        Deployment deployment = this.infraStructure.constructDeploy(namespace, imageName, tag, token.getX_TOKEN(), token.getTOKEN());
+    public Deployment constructK8sContainer(String namespace, String tag, String imageName, String X_TOKEN, String TOKEN) {
+        Deployment deployment = this.infraStructure.constructDeploy(namespace, imageName, tag, X_TOKEN, TOKEN);
         return deployment;
+    }
+
+    @Override
+    public Service constructK8sService(String namespace, String TOKEN) {
+        Service service = this.infraStructure.constructService(namespace, TOKEN);
+        return service;
     }
 }

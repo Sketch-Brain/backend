@@ -2,6 +2,8 @@ package com.sketch.brain.backend.aggregate.manager.infrastructure;
 
 import com.sketch.brain.backend.aggregate.manager.dao.ContainerRepository;
 import com.sketch.brain.backend.aggregate.manager.entity.ContainerEntity;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -12,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Slf4j
@@ -47,20 +52,58 @@ public class ContainerInfraStructure {
                 });
     }
 
+    
+
+    public Service constructService(String namespace, String TOKEN){
+        //Token Value 를 갖고, Service 이름을 저장.
+        String svcName = "training-container-svc-"+TOKEN.toLowerCase();
+        Service service = new ServiceBuilder()
+                .withNewMetadata()
+                    .withName(svcName)
+                    .withNamespace(namespace)
+                    .addToLabels("app","tw-"+TOKEN.toLowerCase())
+                .endMetadata()
+                .withNewSpec()
+                    .withType("ClusterIP")
+                .addToSelector("app","tw-"+TOKEN.toLowerCase())
+                    .withPorts()
+                        .addNewPort()
+                            .withPort(80)
+                            .withNewTargetPort(8080)
+                        .endPort()
+                .endSpec().build();
+
+        log.info("Serivce : {}",service);
+        return service;
+    }
+
+    public void runService(@NotNull Service service, String namespace){
+        log.info("Apply Service :{}",service.getMetadata().getName());
+        Service apply = this.kubernetesClient.services().inNamespace(namespace).createOrReplace(service);
+    }
+
     public Deployment constructDeploy(String namespace, String imageName, String tag, String X_TOKEN, String TOKEN) {
         String appName = "training-container";
-        String workerName = "training-worker";
+        String workerName = "tw-"+TOKEN.toLowerCase();
         String imagePullSecret = "docker-pull-secret";
         String imagePullPolicy = "IfNotPresent";
+        String databaseUrls = this.environment.getProperty("spring.datasource.url");
+        // IP:PORT/TABLE_NAME 정규식.
+        String regex = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])([:][0-9][0-9][0-9][0-9][0-9]?)\\/([A-Z]|[a-z])+";
 
-        String DatabaseURL = "Mock";
-        //FIXME DatabaseURL Construct 필요!
-//        String DatabaseURL = String.format(
-//                "mysql+mysqldb://%s:%s@%s:%s/%s",
-//                this.environment.getProperty("spring.datasource.username"),
-//                this.environment.getProperty("spring.datasource.password"),
-//
-//        )
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(databaseUrls);
+        String urls = null;
+        while(matcher.find()){
+            urls = matcher.group();
+        }
+        String DatabaseURL = String.format(
+                "mysql+mysqldb://%s:%s@%s",
+                this.environment.getProperty("spring.datasource.username"),
+                this.environment.getProperty("spring.datasource.password"),
+                urls
+        );
+        log.info("Urls : {}, {}",urls, DatabaseURL);
 
         Deployment deployment = new DeploymentBuilder()
                 .withNewMetadata()
@@ -95,7 +138,7 @@ public class ContainerInfraStructure {
                     .endTemplate()
                 .endSpec()
         .build();
-        log.info("deployment : {}",deployment.toString());
+//        log.info("deployment : {}",deployment.toString());
         return deployment;
     }
 

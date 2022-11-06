@@ -6,16 +6,16 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sketchbrain-trainer
+      app: sketchbrain-trainer-TOKEN
   template:
     metadata:
       labels:
-        app: sketchbrain-trainer
+        app: sketchbrain-trainer-TOKEN
     spec:
       imagePullSecrets:
         - name: docker-pull-secret
       containers:
-        - name: sketchbrain-trainer
+        - name: sketchbrain-trainer-TOKEN
           image: #VERSION_STRING#
           ports:
             - name: backend-port
