@@ -50,14 +50,25 @@ public class ContainerApi {
         //get Required Arguments
         byte[] experimentId = new ObjectId((String) body.remove("experimentId")).toByteArray();
         String runnable = (String) body.remove("runnable");
-        String dataName = (String) body.remove("dataName");
+        String datasetName = (String) body.remove("dataName");
         String modelName = (String) body.remove("modelName");
         if(experimentId == null || runnable == null) {
             errors.add(new ArgumentError("userId","Validation Failed.","Value runnable & experiment Id required but accept null"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_PARAM_NOT_FOUND,errors);
         }
-        TokenDto tokens = this.containerService.writeSource(experimentId,userId,dataName,modelName);
-        this.containerService.runContainer(tokens);
+        //Token 발행,
+        TokenDto tokens = this.containerService.writeSource(experimentId,userId,datasetName,modelName);
+        this.containerService.runContainer(userId, datasetName, tokens);
+
+        //Pod 가 준비되었다면, runnable 을 Insert 하기.
+        while(true){
+            if(this.containerService.isContainerReady(tokens.getX_TOKEN(),tokens.getTOKEN())){
+                //FIXME - 이후 Return, value 체크.
+                this.containerService.injectRunnable(runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
+                break;
+            }
+            //준비되지 않았다면, 계속해서 다시 Call.
+        }
         return null;
     }
 
@@ -69,5 +80,6 @@ public class ContainerApi {
         this.containerService.getPodLists(namespace);
         return null;
     }
+
 
 }

@@ -2,6 +2,8 @@ package com.sketch.brain.backend.aggregate.manager.infrastructure;
 
 import com.sketch.brain.backend.aggregate.manager.dao.ContainerRepository;
 import com.sketch.brain.backend.aggregate.manager.entity.ContainerEntity;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -13,8 +15,15 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +39,21 @@ public class ContainerInfraStructure {
     private final KubernetesClient kubernetesClient;
     private final Environment environment;
 
+    /**
+     * SQL Database 에 Entity 작성.
+     * @param experimentId
+     * @param userId
+     * @param dataName
+     * @param modelName
+     * @return
+     */
     public ContainerEntity writeSource(byte[] experimentId, String userId, String dataName, String modelName){
         ContainerEntity entity = new ContainerEntity();
         entity.setExperiment_id(experimentId);
         entity.setUser_id(userId);
         entity.setData_name(dataName);
         entity.setModel_name(modelName);
+        entity.setCreated_at(LocalDateTime.now());
         // TOKEN 값이 없으면, 통신 불가능.
         entity.setX_TOKEN(RandomStringUtils.random(10,true,true));
         entity.setTOKEN(RandomStringUtils.random(10,true,true));
@@ -48,11 +66,56 @@ public class ContainerInfraStructure {
                 .list()
                 .getItems()
                 .forEach(pod -> {
+//                    pod.getStatus().getContainerStatuses().forEach(containerStatus -> log.info("status: {}, {}",containerStatus.getReady(),containerStatus.getStarted()));
                     log.info(pod.getMetadata().getName());
                 });
     }
+    /**
+     * HealthCheck. for Training Containers.
+     */
+    public Boolean isReadyRestServer(String svcName, HttpHeaders headers){
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 
-    
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> results =
+                restTemplate.exchange(
+                        svcName,
+                        HttpMethod.POST,
+                        entity,
+                        Object.class
+                );
+        return results.getStatusCode() == HttpStatus.OK;
+    }
+
+    /**
+     * Training Container 에 runnable Source 를 inject.
+     * @param headers : headers.
+     * @param body : Body
+     * @param svcName : Service Name
+     * @return Boolean( isSuccess? )
+     */
+    public Boolean postRunnableSource(HttpHeaders headers, MultiValueMap<String, String> body, String svcName){
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Object> results =
+                restTemplate.exchange(
+                        svcName,
+                        HttpMethod.POST,
+                        entity,
+                        Object.class
+                );
+        return results.getBody() == HttpStatus.OK;
+    }
+
+    public List<ContainerStatus> getPodStatus(String namespace, String TOKEN){
+        Pod pods = this.kubernetesClient.pods()
+                .inNamespace(namespace)
+                .list().getItems()
+                .stream().filter(pod-> pod.getMetadata().getName().contains(TOKEN.toLowerCase()))
+                .findAny().get();
+        return pods.getStatus().getContainerStatuses();
+    }
 
     public Service constructService(String namespace, String TOKEN){
         //Token Value 를 갖고, Service 이름을 저장.
@@ -68,8 +131,8 @@ public class ContainerInfraStructure {
                 .addToSelector("app","tw-"+TOKEN.toLowerCase())
                     .withPorts()
                         .addNewPort()
-                            .withPort(80)
-                            .withNewTargetPort(8080)
+                            .withPort(8888)
+                            .withNewTargetPort(8888)
                         .endPort()
                 .endSpec().build();
 
@@ -82,8 +145,7 @@ public class ContainerInfraStructure {
         Service apply = this.kubernetesClient.services().inNamespace(namespace).createOrReplace(service);
     }
 
-    public Deployment constructDeploy(String namespace, String imageName, String tag, String X_TOKEN, String TOKEN) {
-        String appName = "training-container";
+    public Deployment constructDeploy(String userId, String datasetName, String namespace, String imageName, String tag, String X_TOKEN, String TOKEN) {
         String workerName = "tw-"+TOKEN.toLowerCase();
         String imagePullSecret = "docker-pull-secret";
         String imagePullPolicy = "IfNotPresent";
@@ -107,9 +169,9 @@ public class ContainerInfraStructure {
 
         Deployment deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                    .withName(appName+"-deploy")
+                    .withName(workerName+"-deploy")
                     .withNamespace(namespace)
-                    .addToLabels("app",appName)
+                    .addToLabels("app",workerName)
                 .endMetadata()
                 .withNewSpec()
                     .withReplicas(1)//Default replica = 1
@@ -131,6 +193,8 @@ public class ContainerInfraStructure {
                                     .withContainerPort(1234)
                                 .endPort()
                                 .addNewEnv().withName("SQL_DATABASE_URLS").withValue(DatabaseURL).endEnv()
+                                .addNewEnv().withName("USER_ID").withValue(userId).endEnv()
+                                .addNewEnv().withName("DATASET_NAME").withValue(datasetName).endEnv()
                                 .addNewEnv().withName("X_TOKEN").withValue(X_TOKEN).endEnv()
                                 .addNewEnv().withName("TOKEN").withValue(TOKEN).endEnv()
                             .endContainer()

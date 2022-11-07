@@ -2,13 +2,10 @@ package com.sketch.brain.backend.aggregate.trainer.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sketch.brain.backend.global.error.ArgumentError;
-import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
-import com.sketch.brain.backend.global.error.exceptions.ValidationErrorCodeImpl;
-import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
@@ -70,10 +67,13 @@ public class ConvolutionDto implements SequentialLayers{
             "filters="+this.filters+",";
         if(this.strides != null) runnable += "strides="+this.strides+",";
         if(this.inputShape != null) runnable += "input_shape="+this.inputShape+",";
-        if(this.padding != null) runnable += "padding="+this.padding+",";
-        if(this.use_bias != null) runnable += "use_bias="+this.use_bias+",";
-        if(this.kernel_initializer != null) runnable += "kernel_initializer="+this.kernel_initializer+",";
-        if(this.bias_initializer != null) runnable += "bias_initializer="+this.bias_initializer+",";
+        if(this.padding != null) runnable += "padding=\""+this.padding+"\",";//String Value!
+        if(this.use_bias != null){
+            String values = StringUtils.capitalize(this.use_bias.toString());
+            runnable += "use_bias="+ values +",";// Python 에서 Boolean 은 첫 글자가 대문자임.
+        }
+        if(this.kernel_initializer != null) runnable += "kernel_initializer=\""+this.kernel_initializer+"\",";//String Value!
+        if(this.bias_initializer != null) runnable += "bias_initializer=\""+this.bias_initializer+"\",";//String Value!
         if(this.data_format != null) runnable += "data_format="+this.data_format+",";
         runnable += "kernel_size="+this.kernelSize+"),\n";
         return runnable;
