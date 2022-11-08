@@ -47,7 +47,7 @@ public class ContainerService {
         if (!isReady) return false;
         //HealthCheck URL을 확인하기.
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
-                ":8888/trainer/worker/health";
+                "/trainer/worker/health";
         //결과 Return
         return this.container.isRestServerReady(svcName, X_TOKEN, TOKEN);
     }
