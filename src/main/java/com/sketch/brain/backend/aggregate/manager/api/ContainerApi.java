@@ -12,6 +12,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

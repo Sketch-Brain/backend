@@ -3,6 +3,8 @@ package com.sketch.brain.backend.aggregate.manager.domain;
 import com.sketch.brain.backend.aggregate.manager.dto.TokenDto;
 import com.sketch.brain.backend.aggregate.manager.entity.ContainerEntity;
 import com.sketch.brain.backend.aggregate.manager.infrastructure.ContainerInfraStructure;
+import com.sketch.brain.backend.global.error.exceptions.ContainerErrorCodeImpl;
+import com.sketch.brain.backend.global.error.exceptions.ContainerExceptions;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,12 +79,22 @@ public class ContainerImpl implements Container{
     @Override
     public Boolean isRestServerReady(String svcName,String X_TOKEN, String TOKEN) {
         //Token을 바탕으로 Header, 추가.
-        String serviceName = svcName +"?token="+TOKEN;
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl(svcName+"?token="+TOKEN).build();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type","application/json");
         headers.add("x-token",X_TOKEN);
         //요청 Send 후, 결과 return.
-        return this.infraStructure.isReadyRestServer(serviceName, headers);
+        int retrys = 1;
+        while(retrys <= 10){//10번까지 재시도.
+            Boolean isReady = this.infraStructure.isReadyRestServer(urls, headers);
+            if(isReady) return isReady;
+            else{
+                log.info("Health Check retry {} to {}",retrys,urls.toString());
+                retrys++;
+            }
+        }
+        //여기까지 오면 Exception 발생.
+        throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
     }
 
     @Override

@@ -16,11 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,19 +76,28 @@ public class ContainerInfraStructure {
     /**
      * HealthCheck. for Training Containers.
      */
-    public Boolean isReadyRestServer(String svcName, HttpHeaders headers){
+    public Boolean isReadyRestServer(UriComponents urls, HttpHeaders headers){
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);//Set timeouts
+        factory.setReadTimeout(4000);
+
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> results =
-                restTemplate.exchange(
-                        svcName,
-                        HttpMethod.POST,
-                        entity,
-                        Object.class
-                );
-        return results.getStatusCode() == HttpStatus.OK;
+        try {
+            RestTemplate restTemplate = new RestTemplate(factory);
+            ResponseEntity<Object> results =
+                    restTemplate.exchange(
+                            urls.toString(),
+                            HttpMethod.POST,
+                            entity,
+                            Object.class
+                    );
+            return results.getStatusCode() == HttpStatus.OK;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
