@@ -24,6 +24,8 @@ spec:
           volumeMounts:
             - name: tz-seoul
               mountPath: /etc/localtime
+            - name: kubectl-config
+              mountPath: ~/.kube
           resources:
             requests:
               cpu: "1000m"
@@ -35,3 +37,6 @@ spec:
         - name: tz-seoul
           hostPath:
             path: /usr/share/zoneinfo/Asia/Seoul
+        - name: kubectl-config
+          configMap:
+            name: #CONFIG_MAPS#
