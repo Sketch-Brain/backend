@@ -79,6 +79,7 @@ public class ContainerImpl implements Container{
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type","application/json");
         headers.add("x-token",X_TOKEN);
+        //요청 Send 후, 결과 return.
         return this.infraStructure.isReadyRestServer(serviceName, headers);
     }
 

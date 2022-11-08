@@ -46,7 +46,8 @@ public class ContainerService {
         // Pod 가 준비되지 않았다면, False 를 return.
         if (!isReady) return false;
         //HealthCheck URL을 확인하기.
-        String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+":8888/trainer/worker/health";
+        String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
+                ":8888/trainer/worker/health";
         //결과 Return
         return this.container.isRestServerReady(svcName, X_TOKEN, TOKEN);
     }
@@ -75,7 +76,9 @@ public class ContainerService {
      * @return Boolean Success 여부.
      */
     public Boolean injectRunnable(String runnable,String X_TOKEN, String TOKEN){
-        String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+":8888/trainer/worker/insertRunnable";
+        String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
+        String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
+                ":8888/trainer/worker/insertRunnable";
         return this.container.injectRunnableSource(runnable,svcName,X_TOKEN, TOKEN);
     }
 }
