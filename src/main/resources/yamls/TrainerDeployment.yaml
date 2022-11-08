@@ -25,7 +25,7 @@ spec:
             - name: tz-seoul
               mountPath: /etc/localtime
             - name: kubectl-config
-              mountPath: ~/.kube
+              mountPath: /root/.kube
           resources:
             requests:
               cpu: "1000m"
