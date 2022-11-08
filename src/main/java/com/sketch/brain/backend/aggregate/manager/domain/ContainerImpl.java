@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +50,12 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public LinkedHashMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN) {
+    public LinkedHashMap<String, Object> startExperiment(byte[] experimentId, String namespace, String X_TOKEN, String TOKEN, String userId) {
+
+        //Status 가 Running 상태가 아니라면, 실행할 수 없는 상태이므로 중단.
+        ContainerEntity entity = this.infraStructure.getEntityByExperimentId(experimentId, userId);
+        if (entity.getStatus() != "Running") throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
+
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/run";
         //Token을 바탕으로 Header, 추가.
@@ -62,10 +68,17 @@ public class ContainerImpl implements Container{
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body, HttpMethod.PATCH);
 
         //Exception Handling
-        if (result == null) throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+        if (result == null) {
+            updateStatus(experimentId, "Failed");
+            throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+        }
         if (result.getStatusCode() != HttpStatus.OK){
+            updateStatus(experimentId, "Failed");
             throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_START_FAILED);
-        }else return (LinkedHashMap<String, Object>) result.getBody();
+        }else{
+            updateStatus(experimentId, "Running");
+            return (LinkedHashMap<String, Object>) result.getBody();
+        }
     }
 
     @Override
@@ -85,6 +98,19 @@ public class ContainerImpl implements Container{
         ContainerEntity entity = this.infraStructure.getEntityByExperimentId(experimentId, userId);
         return new TokenDto(entity.getX_TOKEN(), entity.getTOKEN());
     }
+
+    @Override
+    public String updateStatus(byte[] experimentId, String status) {
+        ContainerEntity entity = this.infraStructure.updateStatus(experimentId, status);
+        return entity.getStatus();
+    }
+
+    @Override
+    public String updatePythonSource(byte[] experimentId, String status) {
+        ContainerEntity entity = this.infraStructure.updatePythonSource(experimentId, status);
+        return entity.getPython_source();
+    }
+
 
     @Override
     public Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN) {
@@ -110,7 +136,7 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public Boolean isRestServerReady(String svcName,String X_TOKEN, String TOKEN) {
+    public Boolean isRestServerReady(byte[] experimentId, String svcName,String X_TOKEN, String TOKEN) {
         //Token을 바탕으로 Header, 추가.
         UriComponents urls = UriComponentsBuilder.fromHttpUrl(svcName+"?token="+TOKEN).build();
         HttpHeaders headers = new HttpHeaders();
@@ -132,12 +158,13 @@ public class ContainerImpl implements Container{
             }
         }
         //여기까지 오면 Exception 발생.
+        this.infraStructure.updateStatus(experimentId,"Failed");
         throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
 
     }
 
     @Override
-    public Boolean injectRunnableSource(String runnable, String svcName, String X_TOKEN, String TOKEN) {
+    public Boolean injectRunnableSource(byte[] experimentId, String runnable, String svcName, String X_TOKEN, String TOKEN) {
         //Token 이 없으면 통신 불가능.
         UriComponents urls = UriComponentsBuilder.fromHttpUrl(svcName+"?token="+TOKEN).build();
         HttpHeaders headers = new HttpHeaders();
@@ -146,6 +173,7 @@ public class ContainerImpl implements Container{
 
         ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
         body.put("runnable",runnable); //Body 값으로, POST 요청으로 전달.
+        body.put("experimentId", new String(experimentId));
         log.info(body.toString());
         //11/8 공용 Request Function sendRequest 로 함수 대체.
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);

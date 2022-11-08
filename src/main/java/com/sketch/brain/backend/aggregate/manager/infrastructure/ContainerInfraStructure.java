@@ -60,11 +60,25 @@ public class ContainerInfraStructure {
         // TOKEN 값이 없으면, 통신 불가능.
         entity.setX_TOKEN(RandomStringUtils.random(10,true,true));
         entity.setTOKEN(RandomStringUtils.random(10,true,true));
+        // 11/8 각종 value 추가.
+        entity.setStatus("Created");
+        entity.setPython_source(null);
+        entity.setAccuracy(null);
         return this.containerRepository.save(entity);
     }
 
+    public ContainerEntity updateStatus(byte[] experimentId, String status){
+        this.containerRepository.updateStatusByExperimentId(experimentId, status);
+        return this.containerRepository.findByExperimentId(experimentId);
+    }
+
+    public ContainerEntity updatePythonSource(byte[] experimentId, String pythonSource){
+        this.containerRepository.updatePythonSource(experimentId, pythonSource);
+        return this.containerRepository.findByExperimentId(experimentId);
+    }
+
     public ContainerEntity getEntityByExperimentId(byte[] experimentId, String userId){
-        return this.containerRepository.findByExperimentId(experimentId,userId);
+        return this.containerRepository.findByExperimentIdAndUserId(experimentId,userId);
     }
 
     public void getInfo(String namespace){
@@ -133,13 +147,6 @@ public class ContainerInfraStructure {
         }
     }
 
-    /**
-     * Training Container 에 runnable Source 를 inject.
-     * @param headers : headers.
-     * @param body : Body
-     * @param svcName : Service Name
-     * @return Boolean( isSuccess? )
-     */
 //    public Boolean postRunnableSource(HttpHeaders headers, MultiValueMap<String, String> body, String svcName){
 //        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
 //        RestTemplate restTemplate = new RestTemplate();

@@ -21,11 +21,12 @@ public interface Container {
 
     /**
      * Experiment 의 학습을 시작시킨다.
+     * @param experimentId experimentId ( UUID )
      * @param namespace kubernetes worker's Namespace
      * @param X_TOKEN Header Tokens
      * @param TOKEN Tokens
      */
-    LinkedHashMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN);
+    LinkedHashMap<String, Object> startExperiment(byte[] experimentId, String namespace, String X_TOKEN, String TOKEN,String userId);
 
     TokenDto writeDB(byte[] experimentId, String userId, String dataName, String modelName);
 
@@ -36,6 +37,10 @@ public interface Container {
      * @return TokenDto Objects
      */
     TokenDto getExperimentTokens(byte[] experimentId, String userId);
+
+    String updateStatus(byte[] experimentId, String status);
+
+    String updatePythonSource(byte[] experimentId, String status);
 
     Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN);
 
@@ -51,12 +56,13 @@ public interface Container {
 
     /**
      * FastAPI Rest server 의 HealthCheck 를 통과하는지 검사한다.
+     * @param experimentId : UUID
      * @param svcName : Service Name
      * @param X_TOKEN
      * @param TOKEN
      * @return True( isReady ), False ( notReady )
      */
-    Boolean isRestServerReady(String svcName,String X_TOKEN, String TOKEN);
+    Boolean isRestServerReady(byte[] experimentId, String svcName,String X_TOKEN, String TOKEN);
 
     /**
      * Training Container 에 Python Source 를 inject한다.
@@ -66,5 +72,5 @@ public interface Container {
      * @param TOKEN
      * @return
      */
-    Boolean injectRunnableSource(String runnable,String svcName, String X_TOKEN, String TOKEN);
+    Boolean injectRunnableSource(byte[] experimentId, String runnable,String svcName, String X_TOKEN, String TOKEN);
 }

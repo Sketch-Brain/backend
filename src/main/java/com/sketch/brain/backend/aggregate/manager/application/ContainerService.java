@@ -45,8 +45,9 @@ public class ContainerService {
     public LinkedHashMap<String, Object> startExperiment(byte[] experimentId, String userId){
         String namespace = this.environment.getProperty("sketch.brain.worker.NAME_SPACE");
         TokenDto token = this.container.getExperimentTokens(experimentId, userId);
+
         log.info(token.getTOKEN());
-        return this.container.startExperiment(namespace,token.getX_TOKEN(),token.getTOKEN());
+        return this.container.startExperiment(experimentId, namespace,token.getX_TOKEN(),token.getTOKEN(),userId);
     }
 
     /**
@@ -54,7 +55,7 @@ public class ContainerService {
      * @param X_TOKEN : X_TOKEN( FastAPI에 필요한 토큰값. )
      * @param TOKEN : TOKEN VALUE ( FastAPI + SVC, Deploy 이름 규칙 )
      */
-    public Boolean isContainerReady(String X_TOKEN, String TOKEN){
+    public Boolean isContainerReady(byte[] experimentId, String X_TOKEN, String TOKEN){
         String namespace = this.environment.getProperty("sketch.brain.worker.NAME_SPACE");
         //우선 Kubernetes Pod 상태를 먼저 점검한다.
         Boolean isReady = this.container.isContainerReady(namespace, TOKEN);
@@ -65,7 +66,7 @@ public class ContainerService {
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/health";
         //결과 Return
-        return this.container.isRestServerReady(svcName, X_TOKEN, TOKEN);
+        return this.container.isRestServerReady(experimentId, svcName, X_TOKEN, TOKEN);
     }
 
     public void runContainer(String userId, String datasetName, TokenDto token){
@@ -86,15 +87,20 @@ public class ContainerService {
 
     /**
      * Training Container 로 runnable Source 를 주입.
+     * @param experimentId : ExperimentId
      * @param runnable : Python Runnable Source
      * @param X_TOKEN
      * @param TOKEN
      * @return Boolean Success 여부.
      */
-    public Boolean injectRunnable(String runnable,String X_TOKEN, String TOKEN){
+    public Boolean injectRunnable(byte[] experimentId, String runnable,String X_TOKEN, String TOKEN){
         String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/insertRunnable";
-        return this.container.injectRunnableSource(runnable,svcName,X_TOKEN, TOKEN);
+        //Status 추가로 인한 변경. FIXME Exception check 필요, Transactional 추가.
+        Boolean isReady = this.container.injectRunnableSource(experimentId, runnable,svcName,X_TOKEN, TOKEN);
+        if (isReady) this.container.updateStatus(experimentId,"Ready");
+        else this.container.updateStatus(experimentId,"Failed");
+        return isReady;
     }
 }
