@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,7 +49,7 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public MultiValueMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN) {
+    public LinkedHashMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN) {
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/run";
         //Token을 바탕으로 Header, 추가.
@@ -64,7 +65,7 @@ public class ContainerImpl implements Container{
         if (result == null) throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
         if (result.getStatusCode() != HttpStatus.OK){
             throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_START_FAILED);
-        }else return (MultiValueMap<String, Object>) result.getBody();
+        }else return (LinkedHashMap<String, Object>) result.getBody();
     }
 
     @Override

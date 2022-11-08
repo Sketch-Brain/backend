@@ -10,6 +10,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.util.LinkedHashMap;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class ContainerService {
      * @param experimentId ObjectId
      * @param userId userId
      */
-    public MultiValueMap<String, Object> startExperiment(byte[] experimentId, String userId){
+    public LinkedHashMap<String, Object> startExperiment(byte[] experimentId, String userId){
         String namespace = this.environment.getProperty("sketch.brain.worker.NAME_SPACE");
         TokenDto token = this.container.getExperimentTokens(experimentId, userId);
         log.info(token.getTOKEN());

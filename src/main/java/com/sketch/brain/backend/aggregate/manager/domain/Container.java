@@ -5,6 +5,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import org.springframework.util.MultiValueMap;
 
+import java.util.LinkedHashMap;
+
 public interface Container {
 
     /**
@@ -23,7 +25,7 @@ public interface Container {
      * @param X_TOKEN Header Tokens
      * @param TOKEN Tokens
      */
-    MultiValueMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN);
+    LinkedHashMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN);
 
     TokenDto writeDB(byte[] experimentId, String userId, String dataName, String modelName);
 
