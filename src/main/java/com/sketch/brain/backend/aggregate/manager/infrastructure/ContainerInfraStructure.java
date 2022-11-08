@@ -112,7 +112,7 @@ public class ContainerInfraStructure {
      * @param method HttpMethod
      * @return ResponseEntity<Object>
      */
-    public ResponseEntity<Object> sendRequest(UriComponents urls, HttpHeaders headers, MultiValueMap<String, Object> body, HttpMethod method){
+    public ResponseEntity<Object> sendRequest(UriComponents urls, HttpHeaders headers, ConcurrentHashMap<String, Object> body, HttpMethod method){
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setConnectTimeout(5000);//Set timeouts
         factory.setReadTimeout(4000);
@@ -126,6 +126,7 @@ public class ContainerInfraStructure {
                     entity,
                     Object.class
             );
+        //FIXME Exception Handling required
         }catch(Exception e){
             e.printStackTrace();
             return null;

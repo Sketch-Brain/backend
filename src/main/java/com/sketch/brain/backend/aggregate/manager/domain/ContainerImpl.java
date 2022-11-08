@@ -23,6 +23,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -56,7 +57,7 @@ public class ContainerImpl implements Container{
         headers.add("Content-type","application/json");
         headers.add("x-token",X_TOKEN);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body, HttpMethod.PATCH);
 
         //Exception Handling
@@ -142,8 +143,9 @@ public class ContainerImpl implements Container{
         headers.add("Content-type","application/json");
         headers.add("x-token",X_TOKEN);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("runnable",runnable); //Body 값으로, POST 요청으로 전달.
+        ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
+        body.put("runnable",runnable); //Body 값으로, POST 요청으로 전달.
+        log.info(body.toString());
         //11/8 공용 Request Function sendRequest 로 함수 대체.
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);
 
