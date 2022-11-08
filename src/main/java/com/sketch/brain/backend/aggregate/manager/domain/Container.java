@@ -3,7 +3,7 @@ package com.sketch.brain.backend.aggregate.manager.domain;
 import com.sketch.brain.backend.aggregate.manager.dto.TokenDto;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import org.bson.types.ObjectId;
+import org.springframework.util.MultiValueMap;
 
 public interface Container {
 
@@ -17,7 +17,23 @@ public interface Container {
      */
     void getContainerInfo(String namespace);
 
+    /**
+     * Experiment 의 학습을 시작시킨다.
+     * @param namespace kubernetes worker's Namespace
+     * @param X_TOKEN Header Tokens
+     * @param TOKEN Tokens
+     */
+    MultiValueMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN);
+
     TokenDto writeDB(byte[] experimentId, String userId, String dataName, String modelName);
+
+    /**
+     * Token 값을 조회. experimentId ( UUID ) 로 조회.
+     * @param experimentId UUID
+     * @param userId userId
+     * @return TokenDto Objects
+     */
+    TokenDto getExperimentTokens(byte[] experimentId, String userId);
 
     Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN);
 

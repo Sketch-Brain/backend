@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
 @Slf4j
 @Service
@@ -35,6 +36,18 @@ public class ContainerService {
     }
 
     /**
+     * 학습을 시작한다. Create 할 때, Source 가 이미 저장되어 있으므로, 그 다음부터 생각하면 된다.
+     * @param experimentId ObjectId
+     * @param userId userId
+     */
+    public MultiValueMap<String, Object> startExperiment(byte[] experimentId, String userId){
+        String namespace = this.environment.getProperty("sketch.brain.worker.NAME_SPACE");
+        TokenDto token = this.container.getExperimentTokens(experimentId, userId);
+        log.info(token.getTOKEN());
+        return this.container.startExperiment(namespace,token.getX_TOKEN(),token.getTOKEN());
+    }
+
+    /**
      * Container 가 준비되었는지 확인한다. FastAPI 가 잘 작동했고, HealthCheck 도 Pass 한 경우.
      * @param X_TOKEN : X_TOKEN( FastAPI에 필요한 토큰값. )
      * @param TOKEN : TOKEN VALUE ( FastAPI + SVC, Deploy 이름 규칙 )
@@ -46,6 +59,7 @@ public class ContainerService {
         // Pod 가 준비되지 않았다면, False 를 return.
         if (!isReady) return false;
         //HealthCheck URL을 확인하기.
+        //FIXME URL Construct maybe domain logic?
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/health";
         //결과 Return

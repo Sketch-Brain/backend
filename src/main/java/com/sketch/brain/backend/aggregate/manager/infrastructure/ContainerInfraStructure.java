@@ -63,6 +63,10 @@ public class ContainerInfraStructure {
         return this.containerRepository.save(entity);
     }
 
+    public ContainerEntity getEntityByExperimentId(byte[] experimentId, String userId){
+        return this.containerRepository.findByExperimentId(experimentId,userId);
+    }
+
     public void getInfo(String namespace){
         kubernetesClient.pods()
                 .inNamespace(namespace)
@@ -97,6 +101,34 @@ public class ContainerInfraStructure {
         }catch(Exception e){
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * ClusterIP 로 되어있는 KubernetesPod 에게 Request 를 요청하고, 결과값 Return.
+     * @param urls service Urls
+     * @param headers Header
+     * @param body Request Body
+     * @param method HttpMethod
+     * @return ResponseEntity<Object>
+     */
+    public ResponseEntity<Object> sendRequest(UriComponents urls, HttpHeaders headers, MultiValueMap<String, Object> body, HttpMethod method){
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);//Set timeouts
+        factory.setReadTimeout(4000);
+
+        HttpEntity<Object> entity = new HttpEntity<>(body,headers);
+        try {
+            RestTemplate restTemplate = new RestTemplate(factory);
+            return restTemplate.exchange(
+                    urls.toString(),
+                    method,
+                    entity,
+                    Object.class
+            );
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
         }
     }
 

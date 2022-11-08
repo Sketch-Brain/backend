@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -26,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @PropertySource("classpath:bootstrap.yaml")
 public class ContainerImpl implements Container{
-
+    //FIXME 중복된 함수들 제거하고, 함수로 따로 교체.
     private final ContainerInfraStructure infraStructure;
     private final Environment environment;
 
@@ -44,21 +47,51 @@ public class ContainerImpl implements Container{
     }
 
     @Override
+    public MultiValueMap<String, Object> startExperiment(String namespace, String X_TOKEN, String TOKEN) {
+        String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
+                ":8888/trainer/worker/run";
+        //Token을 바탕으로 Header, 추가.
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl(svcName+"?token="+TOKEN).build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type","application/json");
+        headers.add("x-token",X_TOKEN);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body, HttpMethod.PATCH);
+
+        //Exception Handling
+        if (result == null) throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+        if (result.getStatusCode() != HttpStatus.OK){
+            throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_START_FAILED);
+        }else return (MultiValueMap<String, Object>) result.getBody();
+    }
+
+    @Override
     public TokenDto writeDB(byte[] experimentId, String userId, String dataName, String modelName) {
         ContainerEntity entity = this.infraStructure.writeSource(experimentId, userId, dataName, modelName);
         return new TokenDto(entity.getX_TOKEN(),entity.getTOKEN());
     }
 
+    /**
+     * Experiment Id, And user ID 둘다 만족하는 Experiment 의 Token 을 Get.
+     * @param experimentId UUID
+     * @param userId userId
+     * @return
+     */
+    @Override
+    public TokenDto getExperimentTokens(byte[] experimentId, String userId) {
+        ContainerEntity entity = this.infraStructure.getEntityByExperimentId(experimentId, userId);
+        return new TokenDto(entity.getX_TOKEN(), entity.getTOKEN());
+    }
+
     @Override
     public Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN) {
-        Deployment deployment = this.infraStructure.constructDeploy(userId, datasetName, namespace, imageName, tag, X_TOKEN, TOKEN);
-        return deployment;
+        return this.infraStructure.constructDeploy(userId, datasetName, namespace, imageName, tag, X_TOKEN, TOKEN);
     }
 
     @Override
     public Service constructK8sService(String namespace, String TOKEN) {
-        Service service = this.infraStructure.constructService(namespace, TOKEN);
-        return service;
+        return this.infraStructure.constructService(namespace, TOKEN);
     }
 
     @Override
