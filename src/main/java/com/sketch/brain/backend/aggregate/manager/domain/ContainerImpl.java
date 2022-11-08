@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -21,7 +20,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -91,10 +89,16 @@ public class ContainerImpl implements Container{
             else{
                 log.info("Health Check retry {} to {}",retrys,urls.toString());
                 retrys++;
+                try {
+                    Thread.sleep(1000);//FOR TEST
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         //여기까지 오면 Exception 발생.
         throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+
     }
 
     @Override

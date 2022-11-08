@@ -142,6 +142,7 @@ public class ContainerInfraStructure {
                     .withType("ClusterIP")
                 .addToSelector("app","tw-"+TOKEN.toLowerCase())
                     .withPorts()
+                        .withExternalName("worker-port")
                         .addNewPort()
                             .withPort(8888)
                             .withNewTargetPort(8888)
