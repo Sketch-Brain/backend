@@ -3,6 +3,8 @@ name: Test & Build & Deploy
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [develop]
 
 jobs:
   build:
@@ -55,6 +57,9 @@ jobs:
 
       - name: Change Image Name In Yaml
         run: sed -i 's/#VERSION_STRING#/${{ secrets.DOCKER_USER }}\/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }}/g' ${{ env.DEPLOY_YAML }}
+
+      - name: Replace Configmap string in Yaml
+        run: sed -i 's/#CONFIG_MAPS#/${{ secrets.CONFIGMAP_NAME }}/g' ${{ env.DEPLOY_YAML }}
 
       - name: Deploy on K8S
         run: kubectl apply -f ${{ env.DEPLOY_YAML }}

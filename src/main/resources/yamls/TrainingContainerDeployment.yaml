@@ -2,10 +2,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: training-container-deploy
+  name: training-worker-deploy
   namespace: ${NAME_SPACE}
   labels:
-    app: training-container
+    app: training-woker
 spec:
   replicas: 1
   selector:
@@ -32,3 +32,5 @@ spec:
             value: WORKER_X_TOKEN_VALUE
           - name: TOKEN
             value: WORKER_TOKEN_VALUE
+          - name: DATASET_NAME
+            value: DATASET_NAME

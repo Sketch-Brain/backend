@@ -1,9 +1,6 @@
 package com.sketch.brain.backend.global.error;
 
-import com.sketch.brain.backend.global.error.exceptions.CommonErrorCodeImpl;
-import com.sketch.brain.backend.global.error.exceptions.TrainingErrorCodeImpl;
-import com.sketch.brain.backend.global.error.exceptions.TrainingExceptions;
-import com.sketch.brain.backend.global.error.exceptions.ValidationExceptions;
+import com.sketch.brain.backend.global.error.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -72,5 +69,17 @@ public class GlobalExceptionHandler {
         log.error("Validation Error acc.");
         final ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(),e.getErrorCode().getMessage(),e.getArgumentError());
         return new ResponseEntity<>(errorResponse, e.getErrorCode().getHttpStatus());
+    }
+
+    /**
+     * Container(Kubernetes) Error Handler.
+     * @param e Kubernetes related errors.
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(ContainerExceptions.class)
+    protected ResponseEntity<ErrorResponse> handleContainerExceptions(ContainerExceptions e){
+        log.error("Container Exceptions acc.");
+        final ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(),e.getErrorCode().getMessage(),e.getArgumentError());
+        return new ResponseEntity<>(errorResponse,e.getErrorCode().getHttpStatus());
     }
 }

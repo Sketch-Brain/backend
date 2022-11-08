@@ -74,6 +74,10 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8'
 	implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-fabric8-config'
 
+	//Http Core 4 required.
+	implementation 'org.apache.httpcomponents:httpcore'
+	implementation 'org.apache.httpcomponents:httpclient'
+
 	//Mocking Kubernetes server.
 	implementation 'io.fabric8:kubernetes-server-mock'
 }
