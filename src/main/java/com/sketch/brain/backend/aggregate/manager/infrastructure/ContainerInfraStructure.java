@@ -89,7 +89,7 @@ public class ContainerInfraStructure {
             ResponseEntity<Object> results =
                     restTemplate.exchange(
                             urls.toString(),
-                            HttpMethod.POST,
+                            HttpMethod.GET,
                             entity,
                             Object.class
                     );
