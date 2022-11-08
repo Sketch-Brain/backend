@@ -139,18 +139,18 @@ public class ContainerInfraStructure {
      * @param svcName : Service Name
      * @return Boolean( isSuccess? )
      */
-    public Boolean postRunnableSource(HttpHeaders headers, MultiValueMap<String, String> body, String svcName){
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> results =
-                restTemplate.exchange(
-                        svcName,
-                        HttpMethod.POST,
-                        entity,
-                        Object.class
-                );
-        return results.getBody() == HttpStatus.OK;
-    }
+//    public Boolean postRunnableSource(HttpHeaders headers, MultiValueMap<String, String> body, String svcName){
+//        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body,headers);
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<Object> results =
+//                restTemplate.exchange(
+//                        svcName,
+//                        HttpMethod.POST,
+//                        entity,
+//                        Object.class
+//                );
+//        return results.getBody() == HttpStatus.OK;
+//    }//공용 함수로 인해서 삭제.
 
     public List<ContainerStatus> getPodStatus(String namespace, String TOKEN){
         Pod pods = this.kubernetesClient.pods()

@@ -75,6 +75,7 @@ public class ContainerApi {
         while(true){// 이 반복문은 isContainerReady 함수 반복실행을 위한 것.
             if(this.containerService.isContainerReady(tokens.getX_TOKEN(),tokens.getTOKEN())){
                 //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
+                log.info("Inject Runnable sources");
                 this.containerService.injectRunnable(runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
                 results.add("experimentId",experimentId);
                 break;

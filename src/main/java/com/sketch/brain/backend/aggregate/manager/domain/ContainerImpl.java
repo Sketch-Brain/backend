@@ -137,14 +137,18 @@ public class ContainerImpl implements Container{
     @Override
     public Boolean injectRunnableSource(String runnable, String svcName, String X_TOKEN, String TOKEN) {
         //Token 이 없으면 통신 불가능.
-        String serviceName = svcName +"?token="+TOKEN;
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl(svcName+"?token="+TOKEN).build();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type","application/json");
         headers.add("x-token",X_TOKEN);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("runnable",runnable); //Body 값으로, POST 요청으로 전달.
-        return this.infraStructure.postRunnableSource(headers, params, serviceName);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("runnable",runnable); //Body 값으로, POST 요청으로 전달.
+        //11/8 공용 Request Function sendRequest 로 함수 대체.
+        ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);
 
+        if (result == null) throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+
+        return result.getStatusCode() == HttpStatus.OK;
     }
 }
