@@ -72,10 +72,13 @@ public class ContainerApi {
         MultiValueMap<String, Object> results = new LinkedMultiValueMap<>();
 
         //Pod 가 준비되었다면, runnable 을 Insert 하기.
-        if(this.containerService.isContainerReady(tokens.getX_TOKEN(),tokens.getTOKEN())){
-            //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
-            this.containerService.injectRunnable(runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
-            results.add("experimentId",experimentId);
+        while(true){// 이 반복문은 isContainerReady 함수 반복실행을 위한 것.
+            if(this.containerService.isContainerReady(tokens.getX_TOKEN(),tokens.getTOKEN())){
+                //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
+                this.containerService.injectRunnable(runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
+                results.add("experimentId",experimentId);
+                break;
+            }
         }
 
         //FIXME 실패하는 경우, delete 만 남기고, Start, getInfo 와 같은 정보는 모두 삭제.
