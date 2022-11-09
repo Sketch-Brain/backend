@@ -72,10 +72,10 @@ public class ContainerApi {
 
         //Pod 가 준비되었다면, runnable 을 Insert 하기.
         while(true){// 이 반복문은 isContainerReady 함수 반복실행을 위한 것.
-            if(this.containerService.isContainerReady(tokens.getX_TOKEN(),tokens.getTOKEN())){
+            if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
                 //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
                 log.info("Inject Runnable sources");
-                this.containerService.injectRunnable(runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
+                this.containerService.injectRunnable(experimentId,runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
                 results.add("experimentId",experimentId);
                 break;
             }
@@ -141,6 +141,20 @@ public class ContainerApi {
         return null;
     }
 
+    /**
+     * Get Experiment 의 Status 정보를 Read.
+     * @param experimentId UUID
+     * @param userId userId
+     * @return
+     */
+    @GetMapping(value = "/get/experimentInfo/{experimentId}/{userId}",produces = MediaTypes.HAL_JSON_VALUE)
+    public EntityModel<?> getExperimentInfo(
+            @PathVariable String experimentId, @PathVariable String userId
+    ){
+        byte[] convertExpId = new ObjectId(experimentId).toByteArray();
+
+        return null;
+    }
 
     @GetMapping(value = "/get/podList/{namespace}", produces = MediaTypes.HAL_JSON_VALUE)
     public EntityModel<?> getKubernetesPodList(
