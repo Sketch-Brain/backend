@@ -30,7 +30,7 @@ public class MaxPoolingDto implements SequentialLayers{
 
     @Override
     public String toRunnableSource() {
-        String runnable = "layers.MaxPooling2D(pool_size="+this.pool_size+",";
+        String runnable = "layers.MaxPooling2D(pool_size="+this.pool_size+"),\n";
         
         return runnable;
     }
