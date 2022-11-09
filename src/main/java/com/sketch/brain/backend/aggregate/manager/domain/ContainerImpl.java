@@ -55,7 +55,7 @@ public class ContainerImpl implements Container{
 
         //Status 가 Running 상태가 아니라면, 실행할 수 없는 상태이므로 중단.
         ContainerEntity entity = this.infraStructure.getEntityByExperimentId(experimentId, userId);
-        if (entity.getStatus() != "Running") throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
+        if (entity.getStatus() != "Ready") throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
 
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/run";
@@ -179,8 +179,11 @@ public class ContainerImpl implements Container{
         //11/8 공용 Request Function sendRequest 로 함수 대체.
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);
 
-        if (result == null) throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
-
+        if (result == null) {
+            log.error("Result is NULL");
+            throw new ContainerExceptions(ContainerErrorCodeImpl.CONTAINER_SERVICE_ERROR);
+        }
+        log.info("Results in inject Runnable : {}, {}",result.getStatusCode(),result.getBody().toString());
         return result.getStatusCode() == HttpStatus.OK;
     }
 }

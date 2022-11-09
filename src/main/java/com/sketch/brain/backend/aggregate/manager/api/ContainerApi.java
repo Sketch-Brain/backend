@@ -76,7 +76,8 @@ public class ContainerApi {
                 //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
                 log.info("Inject Runnable sources");
                 this.containerService.injectRunnable(experimentId,runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
-                results.add("experimentId",experimentId);
+                results.add("experimentId",new ObjectId(experimentId).toString());
+                log.info("Results Add :{}", new ObjectId(experimentId).toString());
                 break;
             }
         }
