@@ -51,7 +51,7 @@ public class DenseDto implements SequentialLayers{
         if( this.units <= 0) {
             errors.add(new ArgumentError("Dense","units : "+ this.units,"units value is must bigger then 0"));
         }
-        if(!this.activation.equals("relu") && !this.activation.equals("selu")){
+        if(!this.activation.equals("relu") && !this.activation.equals("selu") && !this.activation.equals("softmax")){
             errors.add(new ArgumentError("Dense","activation :"+this.activation,"Support Activation type is 'relu' or 'selu'"));
         }
         return errors;
