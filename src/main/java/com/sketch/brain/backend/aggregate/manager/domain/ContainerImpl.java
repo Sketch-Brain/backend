@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -173,7 +174,7 @@ public class ContainerImpl implements Container{
 
         ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
         body.put("runnable",runnable); //Body 값으로, POST 요청으로 전달.
-        body.put("experimentId", experimentId); //Byte value 그대로 return.
+        body.put("experimentId", new ObjectId(experimentId).toString()); //String Value 로 Return.
         log.info(body.toString());
         //11/8 공용 Request Function sendRequest 로 함수 대체.
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);
