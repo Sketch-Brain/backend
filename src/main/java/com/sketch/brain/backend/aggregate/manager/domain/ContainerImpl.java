@@ -173,7 +173,7 @@ public class ContainerImpl implements Container{
 
         ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
         body.put("runnable",runnable); //Body 값으로, POST 요청으로 전달.
-        body.put("experimentId", new String(experimentId));
+        body.put("experimentId", experimentId); //Byte value 그대로 return.
         log.info(body.toString());
         //11/8 공용 Request Function sendRequest 로 함수 대체.
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body,HttpMethod.POST);
