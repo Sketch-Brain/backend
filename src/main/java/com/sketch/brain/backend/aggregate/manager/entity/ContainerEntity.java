@@ -42,7 +42,7 @@ public class ContainerEntity {
     private String TOKEN;
     @NotNull
     private String status;
-
+    @Column(columnDefinition = "TEXT")
     private String python_source;
     private String accuracy;
 }
