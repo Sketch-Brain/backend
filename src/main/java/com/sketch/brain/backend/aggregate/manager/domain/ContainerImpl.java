@@ -26,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -55,7 +56,7 @@ public class ContainerImpl implements Container{
 
         //Status 가 Running 상태가 아니라면, 실행할 수 없는 상태이므로 중단.
         ContainerEntity entity = this.infraStructure.getEntityByExperimentId(experimentId, userId);
-        if (entity.getStatus() != "Ready") throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
+        if (!Objects.equals(entity.getStatus(), "Ready")) throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
 
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/run";
