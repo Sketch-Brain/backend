@@ -27,7 +27,7 @@ public class ConvolutionDto implements SequentialLayers{
 
     @JsonProperty("kernel_size")//Tuple
     @NotNull
-    private String kernelSize;
+    private String kernel_size;
 
     @JsonProperty("padding")
     @NotNull
@@ -55,7 +55,7 @@ public class ConvolutionDto implements SequentialLayers{
 
     @Nullable
     @JsonProperty("input_shape")
-    private String inputShape;
+    private String input_shape;
 
     /**
      * Convert 되는 Python Source 를 각 Layer 별로 정의한다.
@@ -66,7 +66,7 @@ public class ConvolutionDto implements SequentialLayers{
         String runnable = "layers.Conv2D("+
             "filters="+this.filters+",";
         if(this.strides != null) runnable += "strides="+this.strides+",";
-        if(this.inputShape != null) runnable += "input_shape="+this.inputShape+",";
+        if(this.input_shape != null) runnable += "input_shape="+this.input_shape+",";
         if(this.padding != null) runnable += "padding=\""+this.padding+"\",";//String Value!
         if(this.use_bias != null){
             String values = StringUtils.capitalize(this.use_bias.toString());
@@ -75,7 +75,7 @@ public class ConvolutionDto implements SequentialLayers{
         if(this.kernel_initializer != null) runnable += "kernel_initializer=\""+this.kernel_initializer+"\",";//String Value!
         if(this.bias_initializer != null) runnable += "bias_initializer=\""+this.bias_initializer+"\",";//String Value!
         if(this.data_format != null) runnable += "data_format="+this.data_format+",";
-        runnable += "kernel_size="+this.kernelSize+"),\n";
+        runnable += "kernel_size="+this.kernel_size+"),\n";
         return runnable;
     }
 
@@ -92,11 +92,11 @@ public class ConvolutionDto implements SequentialLayers{
         if( this.filters <= 0) {
             errors.add(new ArgumentError("Conv2D","filters : "+ this.filters,"filter Value is must bigger then 0"));
         }
-        if(this.kernelSize == null){
+        if(this.kernel_size == null){
             errors.add(new ArgumentError("Conv2D","kernelSize : null","Param kernelSize required."));
         }//또한, kernelSize 변수 값은 (int,int) 형태여야 한다.
-        else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.kernelSize)){
-            errors.add(new ArgumentError("Conv2D","kernelSize : "+this.kernelSize,"Param kernelSize value struct is (int,int)."));
+        else if(!Pattern.matches("^\\([0-9]+\\,[0-9]+\\)$",this.kernel_size)){
+            errors.add(new ArgumentError("Conv2D","kernelSize : "+this.kernel_size,"Param kernelSize value struct is (int,int)."));
         }
         if(this.strides == null){
             errors.add(new ArgumentError("Conv2D","strides : null","Param strides required."));
