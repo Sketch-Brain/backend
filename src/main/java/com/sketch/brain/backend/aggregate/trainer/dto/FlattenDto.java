@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class FlattenDto implements SequentialLayers{
     //NO FIELDS

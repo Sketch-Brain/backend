@@ -63,6 +63,12 @@ public class ContainerService {
         if (!isReady) return false;
         //HealthCheck URL을 확인하기.
         //FIXME URL Construct maybe domain logic?
+        log.info("Wait for 3s");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/health";
         //결과 Return
