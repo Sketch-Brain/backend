@@ -114,9 +114,10 @@ public class ContainerApi {
         LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
 
         Links allLinks;
-        Link selfLink = linkTo(methodOn(ContainerApi.class).deleteExperiment(body)).withSelfRel();
-//        allLinks = Links.of(selfLink, startLink, deleteLink);
-        return EntityModel.of(result,selfLink);
+        Link selfLink = linkTo(methodOn(ContainerApi.class).startExperiment(body)).withSelfRel();
+        Link deleteLink = linkTo(methodOn(ContainerApi.class).deleteExperiment(body)).withRel("delete");
+        allLinks = Links.of(selfLink, selfLink, deleteLink);
+        return EntityModel.of(result,allLinks);
     }
 
     @DeleteMapping(value = "/delete/experiment",produces = MediaTypes.HAL_JSON_VALUE)
@@ -138,6 +139,8 @@ public class ContainerApi {
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
+
+        this.containerService.deleteExperiment(experimentId,userId);
 
         return null;
     }

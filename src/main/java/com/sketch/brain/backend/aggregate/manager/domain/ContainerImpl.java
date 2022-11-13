@@ -67,6 +67,7 @@ public class ContainerImpl implements Container{
         headers.add("x-token",X_TOKEN);
 
         ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
+        body.put("experimentId", new ObjectId(experimentId).toString());
         ResponseEntity<Object> result = this.infraStructure.sendRequest(urls,headers,body, HttpMethod.PATCH);
 
         //Exception Handling
@@ -102,6 +103,11 @@ public class ContainerImpl implements Container{
     }
 
     @Override
+    public void deleteEntityByExperimentId(byte[] experimentId){
+        this.infraStructure.deleteContainerById(experimentId);
+    }
+
+    @Override
     public String updateStatus(byte[] experimentId, String status) {
         ContainerEntity entity = this.infraStructure.updateStatus(experimentId, status);
         return entity.getStatus();
@@ -117,6 +123,13 @@ public class ContainerImpl implements Container{
     @Override
     public Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN) {
         return this.infraStructure.constructDeploy(userId, datasetName, namespace, imageName, tag, X_TOKEN, TOKEN);
+    }
+
+    @Override
+    public void deleteDeploymentsAndService(String namespace, String TOKEN) {
+        //Kuberntes Resource 먼저 삭제.
+        this.infraStructure.deleteDeployment(namespace, TOKEN);
+        this.infraStructure.deleteService(namespace, TOKEN);
     }
 
     @Override

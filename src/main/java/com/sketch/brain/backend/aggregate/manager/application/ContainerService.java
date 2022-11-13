@@ -63,12 +63,6 @@ public class ContainerService {
         if (!isReady) return false;
         //HealthCheck URL을 확인하기.
         //FIXME URL Construct maybe domain logic?
-        log.info("Wait for 3s");
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         String svcName = "http://training-container-svc-"+TOKEN.toLowerCase()+"."+namespace+".svc.cluster.local"+
                 ":8888/trainer/worker/health";
         //결과 Return
@@ -108,5 +102,14 @@ public class ContainerService {
         if (isReady) this.container.updateStatus(experimentId,"Ready");
         else this.container.updateStatus(experimentId,"Failed");
         return isReady;
+    }
+
+    public void deleteExperiment(byte[] experimentId, String userId){
+        String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
+        TokenDto token = this.container.getExperimentTokens(experimentId, userId);
+        //Delete k8s resources by name.
+        this.container.deleteDeploymentsAndService(namespace, token.getTOKEN());
+        //Delete database col.
+        this.container.deleteEntityByExperimentId(experimentId);
     }
 }

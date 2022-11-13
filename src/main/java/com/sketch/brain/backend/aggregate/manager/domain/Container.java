@@ -44,6 +44,10 @@ public interface Container {
 
     Deployment constructK8sContainer(String userId, String datasetName, String namespace, String tag, String imageName, String X_TOKEN, String TOKEN);
 
+    void deleteDeploymentsAndService(String namespace, String TOKEN);
+
+    void deleteEntityByExperimentId(byte[] experimentId);
+
     Service constructK8sService(String namespace, String TOKEN);
 
     /**
@@ -73,4 +77,6 @@ public interface Container {
      * @return
      */
     Boolean injectRunnableSource(byte[] experimentId, String runnable,String svcName, String X_TOKEN, String TOKEN);
+
+
 }

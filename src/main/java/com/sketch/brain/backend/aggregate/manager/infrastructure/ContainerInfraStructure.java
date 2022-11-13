@@ -67,6 +67,10 @@ public class ContainerInfraStructure {
         return this.containerRepository.save(entity);
     }
 
+    public void deleteContainerById(byte[] experimentId){
+        this.containerRepository.deleteEntityByExperimentId(experimentId);
+    }
+
     public ContainerEntity updateStatus(byte[] experimentId, String status){
         this.containerRepository.updateStatusByExperimentId(experimentId, status);
         return this.containerRepository.findByExperimentId(experimentId);
@@ -262,5 +266,21 @@ public class ContainerInfraStructure {
     public void runDeployment(@NotNull Deployment deployment, String namespace){
         log.info("Apply Deployment :{}",deployment.getMetadata().getName());
         Deployment apply = this.kubernetesClient.apps().deployments().inNamespace(namespace).createOrReplace(deployment);
+    }
+
+    public void deleteDeployment(String namespace, String TOKEN){
+        log.info("Delete Deployment : tw-{}-deploy",TOKEN.toLowerCase());
+        this.kubernetesClient.apps()
+                .deployments().inNamespace(namespace)
+                .withName("tw-"+TOKEN.toLowerCase()+"-deploy")
+                .delete();
+    }
+
+    public void deleteService(String namespace, String TOKEN){
+        log.info("Delete Deployment : training-container-svc-{}",TOKEN.toLowerCase());
+        this.kubernetesClient.services()
+                .inNamespace(namespace)
+                .withName("training-container-svc-"+TOKEN.toLowerCase())
+                .delete();
     }
 }
