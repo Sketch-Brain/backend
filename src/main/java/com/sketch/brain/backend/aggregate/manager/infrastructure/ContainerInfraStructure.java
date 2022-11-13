@@ -211,7 +211,7 @@ public class ContainerInfraStructure {
         // IP:PORT/TABLE_NAME 정규식.
         String regex = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])([:][0-9][0-9][0-9][0-9][0-9]?)\\/([A-Z]|[a-z])+";
         String host = environment.getProperty("spring.data.mongodb.host");
-        String resultUrls = "http://"+host+":32700/api/server/result";
+        String resultUrls = "http://"+host+":32700";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(databaseUrls);
