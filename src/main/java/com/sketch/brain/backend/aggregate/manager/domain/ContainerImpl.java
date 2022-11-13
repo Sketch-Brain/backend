@@ -32,15 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@PropertySource("classpath:bootstrap.yaml")
+@PropertySource("classpath:application.yaml")
 public class ContainerImpl implements Container{
     //FIXME 중복된 함수들 제거하고, 함수로 따로 교체.
     private final ContainerInfraStructure infraStructure;
     private final Environment environment;
 
     @Override
-    public void run(Deployment deployment, Service service) {
-        String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
+    public void run(String namespace,Deployment deployment, Service service) {
 
         this.infraStructure.runDeployment(deployment,namespace);
         this.infraStructure.runService(service, namespace);
@@ -87,7 +86,22 @@ public class ContainerImpl implements Container{
     @Override
     public TokenDto writeDB(byte[] experimentId, String userId, String dataName, String modelName) {
         ContainerEntity entity = this.infraStructure.writeSource(experimentId, userId, dataName, modelName);
-        return new TokenDto(entity.getX_TOKEN(),entity.getTOKEN());
+        //11/13 추가 Result Table 에 Create 전달.
+        String host = environment.getProperty("spring.data.mongodb.host");
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl("http://"+host+":32700/api/server/result").build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type","application/json");
+
+        ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
+        body.put("uuid", new ObjectId(experimentId).toString());
+        body.put("user",userId);
+        body.put("data_name",dataName);
+        body.put("model_name", modelName);
+        body.put("result","Experiments Not Finished");
+
+        ResponseEntity<Object> response = this.infraStructure.sendRequest(urls, headers, body, HttpMethod.PUT);
+        if (response.getStatusCode().equals(HttpStatus.OK)) return new TokenDto(entity.getX_TOKEN(),entity.getTOKEN());
+        else throw new ContainerExceptions(ContainerErrorCodeImpl.EXPERIMENT_IS_NOT_READY);
     }
 
     /**
@@ -103,8 +117,16 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public void deleteEntityByExperimentId(byte[] experimentId){
+    public void deleteEntityByExperimentId(byte[] experimentId){//FIXME Logic 분리 필요.
         this.infraStructure.deleteContainerById(experimentId);
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl("http://www.sketch-brain.com/api/server/result").build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type","application/json");
+
+        ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
+        body.put("uuid", new ObjectId(experimentId).toString());
+
+        this.infraStructure.sendRequest(urls, headers, body, HttpMethod.DELETE);
     }
 
     @Override

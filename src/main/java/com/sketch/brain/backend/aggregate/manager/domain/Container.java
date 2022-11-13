@@ -12,7 +12,7 @@ public interface Container {
     /**
      * 학습을 실행시킨다. 실제 Container 를 Running 한다.
      */
-    void run(Deployment deployment,Service service);
+    void run(String namespace,Deployment deployment,Service service);
 
     /**
      *

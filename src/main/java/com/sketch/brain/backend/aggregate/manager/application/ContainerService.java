@@ -82,7 +82,7 @@ public class ContainerService {
         //Service 구성.
         io.fabric8.kubernetes.api.model.Service service = this.container.constructK8sService(namespace, TOKEN);
         // 만들어진 k8s resource 들을 실제로 실행.
-        this.container.run(deployment, service);
+        this.container.run(namespace, deployment, service);
     }
 
     /**
