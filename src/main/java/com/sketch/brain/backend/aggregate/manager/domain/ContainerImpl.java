@@ -119,7 +119,9 @@ public class ContainerImpl implements Container{
     @Override
     public void deleteEntityByExperimentId(byte[] experimentId){//FIXME Logic 분리 필요.
         this.infraStructure.deleteContainerById(experimentId);
-        UriComponents urls = UriComponentsBuilder.fromHttpUrl("http://www.sketch-brain.com/api/server/result").build();
+        String host = environment.getProperty("spring.data.mongodb.host");
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl("http://"+host+":32700/api/server/result").build();
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type","application/json");
 
