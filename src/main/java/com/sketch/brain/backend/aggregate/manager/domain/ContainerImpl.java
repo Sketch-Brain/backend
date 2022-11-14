@@ -132,8 +132,19 @@ public class ContainerImpl implements Container{
     }
 
     @Override
-    public String updateStatus(byte[] experimentId, String status) {
+    public String updateStatus(byte[] experimentId, String status) {//Update Status 함수를 실행시킬 때, Result 도 교체.
         ContainerEntity entity = this.infraStructure.updateStatus(experimentId, status);
+
+        String host = environment.getProperty("spring.data.mongodb.host");
+        UriComponents urls = UriComponentsBuilder.fromHttpUrl("http://"+host+":32700/api/server/result").build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type","application/json");
+
+        ConcurrentHashMap<String, Object> body = new ConcurrentHashMap<>();
+        body.put("uuid", new ObjectId(experimentId).toString());
+        body.put("result",status);
+        this.infraStructure.sendRequest(urls, headers, body, HttpMethod.PATCH);
+
         return entity.getStatus();
     }
 

@@ -60,8 +60,8 @@ public class ContainerApi {
         byte[] experimentId = new ObjectId(expId).toByteArray();
         String runnable = (String) body.remove("runnable");
         String datasetName = (String) body.remove("dataName");
-        //Value Changed.
-        String modelName = expId.substring(0,6)+(String) body.remove("modelName");
+        //Value Changed. 0to8
+        String modelName = expId.substring(0,8)+(String) body.remove("modelName");
         if(experimentId == null || runnable == null) {
             errors.add(new ArgumentError("userId","Validation Failed.","Value runnable & experiment Id required but accept null"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_PARAM_NOT_FOUND,errors);
