@@ -115,15 +115,21 @@ public class ContainerApi {
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
 
-
-//        TokenDto tokens = this.containerService.getTokens(experimentId, userId);
-//        while(true){
-//            if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
-//                result = this.containerService.startExperiment(experimentId,userId);
-//                break;
-//            }
-//        }
-        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        TokenDto tokens = this.containerService.getTokens(experimentId, userId);
+        while(true){
+            if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
+                try {
+                    log.info("sleep for 3s");
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                result = this.containerService.startExperiment(experimentId,userId);
+                break;
+            }
+        }
+//        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
 
         Links allLinks;
         Link selfLink = linkTo(methodOn(ContainerApi.class).startExperiment(body)).withSelfRel();
