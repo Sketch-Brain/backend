@@ -119,6 +119,12 @@ public class ContainerApi {
         TokenDto tokens = this.containerService.getTokens(experimentId, userId);
         while(true){
             if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
+                log.info("Sleep for 3s");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 result = this.containerService.startExperiment(experimentId,userId);
                 break;
             }
