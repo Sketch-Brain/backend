@@ -15,23 +15,23 @@ import java.util.List;
 @NoArgsConstructor
 public class ActivationDto implements SequentialLayers{
 
-    @JsonProperty("type")
+    @JsonProperty("activation")
     @NotNull
-    private String type;//String
+    private String activation;//String
 
     @Override
     public String toRunnableSource() {
-        return "layers.Activation('"+this.type+"'),\n";
+        return "layers.Activation('"+this.activation+"'),\n";
     }
 
     @Override
     public List<ArgumentError> mustNeedMetrics() {
         List<ArgumentError> errors = new ArrayList<>();
-        if(this.type == null){
+        if(this.activation == null){
             errors.add(new ArgumentError("Activation","type : null","Activation type must required."));
         }
-        if(!this.type.equals("relu") && !this.type.equals("selu")){
-            errors.add(new ArgumentError("Activation","type :"+this.type,"Support Activation type is 'relu' or 'selu'"));
+        if(!this.activation.equals("relu") && !this.activation.equals("selu")){
+            errors.add(new ArgumentError("Activation","type :"+this.activation,"Support Activation type is 'relu' or 'selu'"));
         }
         return errors;
     }
