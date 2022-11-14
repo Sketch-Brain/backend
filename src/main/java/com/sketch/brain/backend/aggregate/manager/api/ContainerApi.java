@@ -114,7 +114,16 @@ public class ContainerApi {
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
-        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
+
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        TokenDto tokens = this.containerService.getTokens(experimentId, userId);
+        while(true){
+            if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
+                result = this.containerService.startExperiment(experimentId,userId);
+                break;
+            }
+        }
+//        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
 
         Links allLinks;
         Link selfLink = linkTo(methodOn(ContainerApi.class).startExperiment(body)).withSelfRel();

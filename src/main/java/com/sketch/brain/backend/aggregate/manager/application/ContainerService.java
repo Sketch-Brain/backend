@@ -33,6 +33,10 @@ public class ContainerService {
         return this.container.writeDB(experimentId, userId, dataName, modelName);
     }
 
+    public TokenDto getTokens(byte[] experimentId, String userId){//FIXME Exception Handling required.
+        return this.container.getExperimentTokens(experimentId, userId);
+    }
+
     public void getPodLists(String namespace){
         this.container.getContainerInfo(namespace);
     }
