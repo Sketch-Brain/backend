@@ -56,16 +56,19 @@ public class ContainerApi {
         }
 
         //get Required Arguments
-        byte[] experimentId = new ObjectId((String) body.remove("experimentId")).toByteArray();
+        String expId = (String) body.remove("experimentId");
+        byte[] experimentId = new ObjectId(expId).toByteArray();
         String runnable = (String) body.remove("runnable");
         String datasetName = (String) body.remove("dataName");
-        String modelName = (String) body.remove("modelName");
+        //Value Changed. 0to8
+        String modelName = expId.substring(0,8)+(String) body.remove("modelName");
         if(experimentId == null || runnable == null) {
             errors.add(new ArgumentError("userId","Validation Failed.","Value runnable & experiment Id required but accept null"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.REQUIRED_PARAM_NOT_FOUND,errors);
         }
         //Token 발행,
         TokenDto tokens = this.containerService.writeSource(experimentId,userId,datasetName,modelName);
+
         this.containerService.runContainer(userId, datasetName, tokens);
 
         MultiValueMap<String, Object> results = new LinkedMultiValueMap<>();
@@ -76,7 +79,8 @@ public class ContainerApi {
                 //FIXME - 이후 Return, value 체크, Hateoas chnage 해야함.
                 log.info("Inject Runnable sources");
                 this.containerService.injectRunnable(experimentId,runnable,tokens.getX_TOKEN(),tokens.getTOKEN());
-                results.add("experimentId",experimentId);
+                results.add("experimentId",new ObjectId(experimentId).toString());
+                log.info("Results Add :{}", new ObjectId(experimentId).toString());
                 break;
             }
         }
@@ -110,12 +114,28 @@ public class ContainerApi {
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
-        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
+
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        TokenDto tokens = this.containerService.getTokens(experimentId, userId);
+        while(true){
+            if(this.containerService.isContainerReady(experimentId, tokens.getX_TOKEN(),tokens.getTOKEN())){
+                try {
+                    log.info("sleep for 3s");
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                result = this.containerService.startExperiment(experimentId,userId);
+                break;
+            }
+        }
+//        LinkedHashMap<String, Object> result = this.containerService.startExperiment(experimentId,userId);
 
         Links allLinks;
-        Link selfLink = linkTo(methodOn(ContainerApi.class).deleteExperiment(body)).withSelfRel();
-//        allLinks = Links.of(selfLink, startLink, deleteLink);
-        return EntityModel.of(result,selfLink);
+        Link selfLink = linkTo(methodOn(ContainerApi.class).startExperiment(body)).withSelfRel();
+        Link deleteLink = linkTo(methodOn(ContainerApi.class).deleteExperiment(body)).withRel("delete");
+        allLinks = Links.of(selfLink, selfLink, deleteLink);
+        return EntityModel.of(result,allLinks);
     }
 
     @DeleteMapping(value = "/delete/experiment",produces = MediaTypes.HAL_JSON_VALUE)
@@ -137,6 +157,8 @@ public class ContainerApi {
             errors.add(new ArgumentError("userId","Forbidden Special characters in userId","userId only allowed numbers ( 0-9 ) & Alphabets( a-z, A-Z ) & Dash( - ), Under bar( _ )"));
             throw new ValidationExceptions(ValidationErrorCodeImpl.SPECIAL_CHARACTER_FORBIDDEN,errors);
         }
+
+        this.containerService.deleteExperiment(experimentId,userId);
 
         return null;
     }

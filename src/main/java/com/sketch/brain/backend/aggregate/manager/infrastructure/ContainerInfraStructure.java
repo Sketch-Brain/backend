@@ -22,6 +22,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
@@ -65,6 +66,10 @@ public class ContainerInfraStructure {
         entity.setPython_source(null);
         entity.setAccuracy(null);
         return this.containerRepository.save(entity);
+    }
+
+    public void deleteContainerById(byte[] experimentId){
+        this.containerRepository.deleteEntityByExperimentId(experimentId);
     }
 
     public ContainerEntity updateStatus(byte[] experimentId, String status){
@@ -205,6 +210,8 @@ public class ContainerInfraStructure {
         String databaseUrls = this.environment.getProperty("spring.datasource.url");
         // IP:PORT/TABLE_NAME 정규식.
         String regex = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])([:][0-9][0-9][0-9][0-9][0-9]?)\\/([A-Z]|[a-z])+";
+        String host = environment.getProperty("spring.data.mongodb.host");
+        String resultUrls = "http://"+host+":32700";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(databaseUrls);
@@ -250,6 +257,7 @@ public class ContainerInfraStructure {
                                 .addNewEnv().withName("DATASET_NAME").withValue(datasetName).endEnv()
                                 .addNewEnv().withName("X_TOKEN").withValue(X_TOKEN).endEnv()
                                 .addNewEnv().withName("TOKEN").withValue(TOKEN).endEnv()
+                                .addNewEnv().withName("RESULT_URLS").withValue(resultUrls).endEnv()
                             .endContainer()
                         .endSpec()
                     .endTemplate()
@@ -262,5 +270,21 @@ public class ContainerInfraStructure {
     public void runDeployment(@NotNull Deployment deployment, String namespace){
         log.info("Apply Deployment :{}",deployment.getMetadata().getName());
         Deployment apply = this.kubernetesClient.apps().deployments().inNamespace(namespace).createOrReplace(deployment);
+    }
+
+    public void deleteDeployment(String namespace, String TOKEN){
+        log.info("Delete Deployment : tw-{}-deploy",TOKEN.toLowerCase());
+        this.kubernetesClient.apps()
+                .deployments().inNamespace(namespace)
+                .withName("tw-"+TOKEN.toLowerCase()+"-deploy")
+                .delete();
+    }
+
+    public void deleteService(String namespace, String TOKEN){
+        log.info("Delete Deployment : training-container-svc-{}",TOKEN.toLowerCase());
+        this.kubernetesClient.services()
+                .inNamespace(namespace)
+                .withName("training-container-svc-"+TOKEN.toLowerCase())
+                .delete();
     }
 }

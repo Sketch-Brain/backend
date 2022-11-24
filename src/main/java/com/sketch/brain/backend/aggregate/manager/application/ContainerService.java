@@ -33,6 +33,10 @@ public class ContainerService {
         return this.container.writeDB(experimentId, userId, dataName, modelName);
     }
 
+    public TokenDto getTokens(byte[] experimentId, String userId){//FIXME Exception Handling required.
+        return this.container.getExperimentTokens(experimentId, userId);
+    }
+
     public void getPodLists(String namespace){
         this.container.getContainerInfo(namespace);
     }
@@ -82,7 +86,7 @@ public class ContainerService {
         //Service 구성.
         io.fabric8.kubernetes.api.model.Service service = this.container.constructK8sService(namespace, TOKEN);
         // 만들어진 k8s resource 들을 실제로 실행.
-        this.container.run(deployment, service);
+        this.container.run(namespace, deployment, service);
     }
 
     /**
@@ -102,5 +106,14 @@ public class ContainerService {
         if (isReady) this.container.updateStatus(experimentId,"Ready");
         else this.container.updateStatus(experimentId,"Failed");
         return isReady;
+    }
+
+    public void deleteExperiment(byte[] experimentId, String userId){
+        String namespace = environment.getProperty("sketch.brain.worker.NAME_SPACE");
+        TokenDto token = this.container.getExperimentTokens(experimentId, userId);
+        //Delete k8s resources by name.
+        this.container.deleteDeploymentsAndService(namespace, token.getTOKEN());
+        //Delete database col.
+        this.container.deleteEntityByExperimentId(experimentId);
     }
 }
